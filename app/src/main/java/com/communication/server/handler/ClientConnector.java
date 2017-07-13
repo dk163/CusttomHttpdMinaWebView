@@ -38,7 +38,7 @@ public class ClientConnector {
 	public  IoSession session;
 	
     /**
-     * Create the UdpClient's instance
+     * Create the ClientConnector's instance
      */
     public ClientConnector() {
     	connector = new NioSocketConnector();
@@ -92,7 +92,7 @@ public class ClientConnector {
 	}
 
 	public void sendData() throws Exception{
-		String msg = "{\"msg_id\":1}";
+		String msg = "{\"msg_id\":1}";//open httpd server
 		byte [] d =  msg.getBytes();
 		session.write(IoBuffer.wrap(d));
 	}
