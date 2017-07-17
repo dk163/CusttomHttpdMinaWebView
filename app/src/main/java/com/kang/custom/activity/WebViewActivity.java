@@ -40,11 +40,11 @@ public class WebViewActivity extends AppCompatActivity implements View.OnClickLi
 
 
     private void bindViews() {
-        btn_back =  findViewById(R.id.btn_back);
-        txt_title =  findViewById(R.id.txt_title);
-        btn_top =  findViewById(R.id.btn_top);
-        btn_refresh =  findViewById(R.id.btn_refresh);
-        wView =  findViewById(R.id.wView);
+        btn_back = findViewById(R.id.btn_back);
+        txt_title = findViewById(R.id.txt_title);
+        btn_top = findViewById(R.id.btn_top);
+        btn_refresh = findViewById(R.id.btn_refresh);
+        wView = findViewById(R.id.wView);
 
         btn_back.setOnClickListener(this);
         btn_refresh.setOnClickListener(this);
@@ -116,16 +116,16 @@ public class WebViewActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private class MyWebViewDownLoadListener implements DownloadListener{
+    private class MyWebViewDownLoadListener implements DownloadListener {
 
         @Override
         public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype,
                                     long contentLength) {
-            Log.i(TAG, "url="+url);
-            Log.i(TAG, "userAgent="+userAgent);
-            Log.i(TAG, "contentDisposition="+contentDisposition);
-            Log.i(TAG,"mimetype="+mimetype);
-            Log.i(TAG, "contentLength="+contentLength);
+            Log.i(TAG, "url=" + url);
+            Log.i(TAG, "userAgent=" + userAgent);
+            Log.i(TAG, "contentDisposition=" + contentDisposition);
+            Log.i(TAG, "mimetype=" + mimetype);
+            Log.i(TAG, "contentLength=" + contentLength);
             Uri uri = Uri.parse(url);
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(intent);
