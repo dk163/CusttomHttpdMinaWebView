@@ -123,19 +123,19 @@ public class MainActivity extends AppCompatActivity{
         startWebView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //mIntent = new Intent(mContext, WebViewActivity.class);
-                //startActivity(mIntent);
                 EditText edHttpdUrl = findViewById(R.id.edHttpdUrl);//httpd server url
                 tmp = edHttpdUrl.getText().toString();
                 if(!(tmp.isEmpty()) && (tmp.length() != 0)){
                     constant.setHTTPIPPORT(tmp);
                 }
 
-                Intent intent = new Intent();
+                Intent intent = new Intent();//download file to /mnt/sdcard/MyFavorite
                 intent.setAction("android.intent.action.VIEW");
                 Uri content_url = Uri.parse(Constant.HTTPDIPPORT);
                 intent.setData(content_url);
                 startActivity(intent);
+//                mIntent = new Intent(mContext, WebViewActivity.class);
+//                startActivity(mIntent);
                 Log.i(TAG, "open webview");
             }
         });

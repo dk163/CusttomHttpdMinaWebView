@@ -1,8 +1,12 @@
 package com.kang.custom.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.webkit.DownloadListener;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -19,8 +23,7 @@ import com.kang.customhttpdmina.R;
  */
 
 public class WebViewActivity extends AppCompatActivity implements View.OnClickListener {
-
-
+    private final String TAG = WebViewActivity.class.getSimpleName();
     private Button btn_back;
     private TextView txt_title;
     private Button btn_top;
@@ -78,6 +81,7 @@ public class WebViewActivity extends AppCompatActivity implements View.OnClickLi
                 return false;
             }
         });
+        wView.setDownloadListener(new MyWebViewDownLoadListener());
     }
 
     @Override
@@ -110,5 +114,22 @@ public class WebViewActivity extends AppCompatActivity implements View.OnClickLi
             }
 
         }
+    }
+
+    private class MyWebViewDownLoadListener implements DownloadListener{
+
+        @Override
+        public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype,
+                                    long contentLength) {
+            Log.i(TAG, "url="+url);
+            Log.i(TAG, "userAgent="+userAgent);
+            Log.i(TAG, "contentDisposition="+contentDisposition);
+            Log.i(TAG,"mimetype="+mimetype);
+            Log.i(TAG, "contentLength="+contentLength);
+            Uri uri = Uri.parse(url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
+        }
+
     }
 }
