@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 public class NanoHTTPd {
 
     private final String TAG = NanoHTTPd.class.getSimpleName();
+
     /**
      * Override this to customize the server.<p>
      * <p/>
@@ -160,20 +161,24 @@ public class NanoHTTPd {
      * Throws an IOException if the socket is already in use
      */
     public NanoHTTPd(int port) throws IOException {
+        stop();
         myTcpPort = port;
         myServerSocket = new ServerSocket(myTcpPort);
+
         myThread = new Thread(new Runnable() {
             public void run() {
                 try {
-                    while (true)
+                    while (true){
                         new HTTPSession(myServerSocket.accept());
+                    }
                 } catch (IOException ioe) {
+                    Log.e(TAG, "NanoHTTPD exception: " + ioe.toString());
                 }
             }
         });
         myThread.setDaemon(true);
-        Log.i(TAG, "com.communication.server.httpd thread start");
         myThread.start();
+        Log.i(TAG, "start httpd end");
     }
 
     /**
@@ -181,8 +186,12 @@ public class NanoHTTPd {
      */
     public void stop() {
         try {
-            myServerSocket.close();
-            myThread.join();
+            if(myServerSocket != null){
+                myServerSocket.close();
+            }
+            if(myThread != null){
+                myThread.join();
+            }
         } catch (IOException ioe) {
         } catch (InterruptedException e) {
         }

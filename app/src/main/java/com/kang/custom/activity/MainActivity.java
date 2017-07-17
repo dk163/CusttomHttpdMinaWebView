@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import java.io.IOException;
 
@@ -22,19 +23,29 @@ public class MainActivity extends AppCompatActivity{
     private NanoHTTPd na;
     private Intent mIntent;
     private Context mContext;
+    //private MyApplication myApplication;
+    private static Constant constant;
+    private String tmp = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
-
+        //myApplication = (MyApplication)getApplication();
+        constant = new Constant();
 
         //mina port 8081
         Button startServer = findViewById(R.id.startServer);
         startServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                EditText etPort = findViewById(R.id.serverEditTextPort);
+                tmp = etPort.getText().toString();
+               if(!(tmp.isEmpty()) && (tmp.length() !=0)){
+                    constant.setPORT(Integer.parseInt(tmp));//获取输入端口
+                }
+
                 mIntent = new Intent(mContext, MinaServer.class);
                 startService(mIntent);
             }
@@ -53,6 +64,12 @@ public class MainActivity extends AppCompatActivity{
         startClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                EditText edConIp = findViewById(R.id.edConIp);
+                tmp = edConIp.getText().toString();
+                if(!(tmp.isEmpty()) && ((tmp.length()) != 0)){
+                    constant.setIP(tmp);//获取clent ip
+                }
+
                 mIntent = new Intent(mContext, MinaClient.class);
                 startService(mIntent);
             }
@@ -73,13 +90,20 @@ public class MainActivity extends AppCompatActivity{
         startHttpd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    if(na == null){
-                        na = new NanoHTTPd(Constant.HTTPD_PORT);
+                    EditText edHttpd = findViewById(R.id.edHttpdPort);
+                    tmp = edHttpd.getText().toString();
+                    if(!(tmp.isEmpty()) && (tmp.length() != 0)){
+                        constant.setHttpdPort(Integer.parseInt(tmp));//获取httpd port
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                    try {
+                        if(na == null){
+                            na = new NanoHTTPd(Constant.HTTPD_PORT);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 Log.i(TAG, "start com.communication.server.httpd");
             }
         });
@@ -101,9 +125,15 @@ public class MainActivity extends AppCompatActivity{
             public void onClick(View view) {
                 //mIntent = new Intent(mContext, WebViewActivity.class);
                 //startActivity(mIntent);
+                EditText edHttpdUrl = findViewById(R.id.edHttpdUrl);//httpd server url
+                tmp = edHttpdUrl.getText().toString();
+                if(!(tmp.isEmpty()) && (tmp.length() != 0)){
+                    constant.setHTTPIPPORT(tmp);
+                }
+
                 Intent intent = new Intent();
                 intent.setAction("android.intent.action.VIEW");
-                Uri content_url = Uri.parse(Constant.HTTPIPPORT);
+                Uri content_url = Uri.parse(Constant.HTTPDIPPORT);
                 intent.setData(content_url);
                 startActivity(intent);
                 Log.i(TAG, "open webview");

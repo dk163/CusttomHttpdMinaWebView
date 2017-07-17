@@ -70,7 +70,7 @@ public class ClientConnector {
 	}
 
 	private void connectServer(){
-		ConnectFuture connFuture = connector.connect(new InetSocketAddress(Constant.IP, Constant.PORT));
+		ConnectFuture connFuture = connector.connect(new InetSocketAddress(Constant.MINA_IP, Constant.MINA_PORT));
 		if(connFuture == null)
 			return;
 		connFuture.awaitUninterruptibly();

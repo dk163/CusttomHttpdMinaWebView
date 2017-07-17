@@ -42,7 +42,7 @@ public final class CommandManger {
 	}
 	
 	public void process(int port, byte[] data) {
-		if (Constant.PORT != port) {
+		if (Constant.MINA_PORT != port) {
 			Log.e(TAG, "port is error");
 			return;
 		}

@@ -1,6 +1,7 @@
 package com.kang.custom.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.util.Log;
 
 import com.communication.server.handler.ServerAcceptor;
 import com.communication.server.impl.CommandHandle;
+import com.lzy.okgo.OkGo;
 
 /**
  * Created by rd0551 on 2017/7/12.
@@ -19,6 +21,7 @@ public class MinaServer extends Service implements Runnable{
     private ServerAcceptor mServerAcceptor;
 
     public MinaServer() {
+        //OkGo.getInstance().init(this.getApplication());
     }
 
     public static MinaServer getInstance() {

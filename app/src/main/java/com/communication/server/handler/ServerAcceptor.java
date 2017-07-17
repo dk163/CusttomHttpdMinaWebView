@@ -49,7 +49,7 @@ public class ServerAcceptor {
 
 		acceptor.setReuseAddress(true);
 		try {
-			acceptor.bind(new InetSocketAddress(Constant.PORT));
+			acceptor.bind(new InetSocketAddress(Constant.MINA_PORT));
 			Log.i(TAG, "bind end");
 		} catch (IOException e) {
 			e.printStackTrace();

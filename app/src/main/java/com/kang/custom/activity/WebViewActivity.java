@@ -58,7 +58,7 @@ public class WebViewActivity extends AppCompatActivity implements View.OnClickLi
         settings.setTextSize(WebSettings.TextSize.LARGER);
 
 
-        wView.loadUrl(Constant.HTTPIPPORT);//httpd ip
+        wView.loadUrl(Constant.HTTPDIPPORT);//httpd ip
         wView.setWebChromeClient(new WebChromeClient() {
             //这里设置获取到的网站title
             @Override

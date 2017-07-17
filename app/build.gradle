@@ -27,4 +27,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.0.0-beta1'
     testImplementation 'junit:junit:4.12'
     implementation files('libs/gson-2.7.jar')
+    implementation files('libs/okhttp-2.7.5.jar')
+    implementation files('libs/okhttp-3.8.1.jar')
+    implementation files('libs/okserver-2.0.3.jar')
+    implementation files('libs/okgo-3.0.3.jar')
 }
