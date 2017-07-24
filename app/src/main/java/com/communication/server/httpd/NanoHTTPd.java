@@ -187,9 +187,11 @@ public class NanoHTTPd {
     public void stop() {
         try {
             if(myServerSocket != null){
+                Log.i(TAG, "stop httpd myServerSocket.close();");
                 myServerSocket.close();
             }
             if(myThread != null){
+                Log.i(TAG, "stop httpd myThread.join();");
                 myThread.join();
             }
         } catch (IOException ioe) {

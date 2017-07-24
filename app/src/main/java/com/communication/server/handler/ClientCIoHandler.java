@@ -23,6 +23,8 @@ public class ClientCIoHandler extends IoHandlerAdapter {
 	
 	public void sessionCreated(IoSession session) throws Exception {
 		int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
+		CSession wrapperSession = new CSession(session);
+		ClientSessionManager.getInstance().addSession(port, wrapperSession);
 
 	}
 

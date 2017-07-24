@@ -15,11 +15,10 @@ import com.communication.server.impl.CommandHandle;
 
 public class MinaServer extends Service implements Runnable{
     private final String TAG = MinaServer.class.getSimpleName();
-    private volatile static MinaServer instance;
-    private ServerAcceptor mServerAcceptor;
+    private static MinaServer instance;
+    private static ServerAcceptor mServerAcceptor;
 
     public MinaServer() {
-
     }
 
     public static MinaServer getInstance() {
@@ -60,10 +59,10 @@ public class MinaServer extends Service implements Runnable{
 
     @Override
     public void run() {
-        //if(mServerAcceptor == null) {
+        if(mServerAcceptor == null) {
             Log.i(TAG, "create ServerAcceptor");
             mServerAcceptor = new ServerAcceptor();
-        //    }
+            }
         }
 
     public void stopServer(){

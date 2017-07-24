@@ -1,6 +1,10 @@
 package com.communication.server.handler;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
@@ -23,6 +27,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.filter.ServerMessageCodecFactory;
+import com.communication.server.impl.CommandHandle;
 import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
 
@@ -33,9 +38,11 @@ public class ClientConnector {
     /** The connector */
     public static NioSocketConnector connector;
     
-    public final String TAG = "ClientIoHandler";
+    public final String TAG = "ClientConnector";
 	private ClientCIoHandler mClientHandler;
 	public  IoSession session;
+	private ClientAcceptorHandler mAcceptorHandler;
+	private final int TOAST_SHOW = 0;
 	
     /**
      * Create the ClientConnector's instance
@@ -53,16 +60,15 @@ public class ClientConnector {
 		connector.setConnectTimeout(5);
 
 		Log.d(TAG, "ClientConnector enter");
-		
+		mAcceptorHandler = new ClientAcceptorHandler(Looper.getMainLooper());
 		connectServer();
 
-		Log.d(TAG, "all connect socket ok");
-	    try {
-			Thread.sleep(365 * 24 * 60 * 60 * 1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//	    try {
+//			Thread.sleep(365 * 24 * 60 * 60 * 1000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     }
 
 	public IoSession getSession() {
@@ -78,6 +84,7 @@ public class ClientConnector {
 			public void operationComplete(ConnectFuture future) {
 				if (future.isConnected()) {
 					Log.i(TAG, "connectServer connect");
+					mAcceptorHandler.sendEmptyMessage(TOAST_SHOW);
 					session = future.getSession();
 					try {
 						sendData();
@@ -95,5 +102,23 @@ public class ClientConnector {
 		String msg = "{\"msg_id\":1}";//open httpd server
 		byte [] d =  msg.getBytes();
 		session.write(IoBuffer.wrap(d));
+	}
+	private class ClientAcceptorHandler extends Handler {
+		public ClientAcceptorHandler(Looper looper) {
+			super(looper);
+		}
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Log.i(TAG, "msg what: " + msg.what);
+			switch (msg.what) {
+				case TOAST_SHOW:
+					Toast.makeText(CommandHandle.getInstance().getContext(), "client connectServer connect", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
+			}
+		}
 	}
 }

@@ -3,20 +3,24 @@ package com.communication.server.handler;
 import android.util.Log;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.codec.prefixedstring.PrefixedStringCodecFactory;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.filter.ServerMessageCodecFactory;
 import com.communication.server.impl.CommandManger;
+import com.communication.server.session.CSession;
 import com.communication.server.session.ServerSessionManager;
 
 /**
@@ -36,14 +40,14 @@ public class ServerCIoHandler extends IoHandlerAdapter {
         acceptor.getFilterChain().addLast("executor", new ExecutorFilter());
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
         acceptor.setHandler(this);
-  *//*      DefaultIoFilterChainBuilder chain = acceptor.getFilterChain();
+        DefaultIoFilterChainBuilder chain = acceptor.getFilterChain();
         chain.addLast("codec", new ProtocolCodecFilter(
-                new PrefixedStringCodecFactory(Charset.forName("UTF-8"))));*//*
+                new PrefixedStringCodecFactory(Charset.forName("UTF-8"))));
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ServerMessageCodecFactory()));
 
         acceptor.setReuseAddress(true);
         try {
-            acceptor.bind(new InetSocketAddress(Constant.PORT));
+            acceptor.bind(new InetSocketAddress(Constant.MINA_PORT));
             Log.i(TAG, "bind end");
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,6 +57,9 @@ public class ServerCIoHandler extends IoHandlerAdapter {
     @Override
     public void sessionCreated(IoSession session) throws Exception {
         super.sessionCreated(session);
+        CSession wrapperSession = new CSession(session);
+        int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
+        ServerSessionManager.getInstance().addSession(port, wrapperSession);
         Log.i(TAG, "sessionCreated");
     }
 

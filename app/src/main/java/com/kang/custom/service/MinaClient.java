@@ -18,10 +18,10 @@ import org.apache.mina.core.session.IoSession;
 public class MinaClient extends Service implements Runnable {
     private final String TAG = MinaClient.class.getSimpleName();
     private volatile static MinaClient instance;
-    private ClientConnector client;
+    private static ClientConnector client;
 
     public MinaClient(){
-
+//        instance = new MinaClient();
     }
 
     public static MinaClient getInstance() {
@@ -53,7 +53,8 @@ public class MinaClient extends Service implements Runnable {
     @Override
     public void run() {
         client = new ClientConnector();
-        client.connector.dispose(true);
+//        client.connector.dispose(true);
+        client.connector.dispose(false);
     }
 
     public void stopClient(){

@@ -44,7 +44,7 @@
                     android:id="@+id/serverEditTextPort"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="8081"
+                    android:hint="12345"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
                     android:textColorHint="#95A1AA" />
@@ -190,10 +190,10 @@
                     android:textSize="20dp" />
 
                 <EditText
+                    android:id="@+id/edHttpdUrl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/edHttpdUrl"
-                    android:hint="http://192.168.43.1:8080"
+                    android:hint="192.168.43.1"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
                     android:textColorHint="#95A1AA" />
