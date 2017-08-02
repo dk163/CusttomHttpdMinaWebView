@@ -40,11 +40,11 @@ public class WebViewActivity extends AppCompatActivity implements View.OnClickLi
 
 
     private void bindViews() {
-        btn_back = findViewById(R.id.btn_back);
-        txt_title = findViewById(R.id.txt_title);
-        btn_top = findViewById(R.id.btn_top);
-        btn_refresh = findViewById(R.id.btn_refresh);
-        wView = findViewById(R.id.wView);
+        btn_back = (Button) findViewById(R.id.btn_back);
+        txt_title = (TextView) findViewById(R.id.txt_title);
+        btn_top = (Button) findViewById(R.id.btn_top);
+        btn_refresh = (Button) findViewById(R.id.btn_refresh);
+        wView = (WebView) findViewById(R.id.wView);
 
         btn_back.setOnClickListener(this);
         btn_refresh.setOnClickListener(this);

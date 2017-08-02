@@ -51,11 +51,11 @@ public class MainActivity extends AppCompatActivity{
         mHandler =  new MainHandler(Looper.getMainLooper());
 
         //mina port 8081
-        Button startServer = findViewById(R.id.startServer);
+        Button startServer = (Button) findViewById(R.id.startServer);
         startServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText etPort = findViewById(R.id.serverEditTextPort);
+                EditText etPort = (EditText)findViewById(R.id.serverEditTextPort);
                 tmp = etPort.getText().toString();
                if(!(tmp.isEmpty()) && (tmp.length() !=0)){
                     constant.setPORT(Integer.parseInt(tmp));//获取输入端口
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity{
                 startService(mIntent);
             }
         });
-        Button stopServer = findViewById(R.id.stopServer);
+        Button stopServer = (Button)findViewById(R.id.stopServer);
         stopServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        Button startClient = findViewById(R.id.startClient);
+        Button startClient = (Button)findViewById(R.id.startClient);
         startClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity{
                     Log.i(TAG, "already session Connected");
                     cs.close(true);
                 }
-                EditText edConIp = findViewById(R.id.edConIp);
+                EditText edConIp = (EditText)findViewById(R.id.edConIp);
                 tmp = edConIp.getText().toString();
                 if(!(tmp.isEmpty()) && ((tmp.length()) != 0)){
                     constant.setIP(tmp);//获取clent ip
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
                 startService(mIntent);
             }
         });
-        Button stopClient = findViewById(R.id.stopClient);
+        Button stopClient = (Button)findViewById(R.id.stopClient);
         stopClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,11 +109,11 @@ public class MainActivity extends AppCompatActivity{
         });
 
         //httpd port 8080
-        Button startHttpd = findViewById(R.id.startHttpd);
+        Button startHttpd = (Button)findViewById(R.id.startHttpd);
         startHttpd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    EditText edHttpd = findViewById(R.id.edHttpdPort);
+                    EditText edHttpd = (EditText) findViewById(R.id.edHttpdPort);
                     tmp = edHttpd.getText().toString();
                     if(!(tmp.isEmpty()) && (tmp.length() != 0)){
                         constant.setHttpdPort(Integer.parseInt(tmp));//获取httpd port
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        Button stopHttpd = findViewById(R.id.stopHttpd);
+        Button stopHttpd = (Button)findViewById(R.id.stopHttpd);
         stopHttpd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -143,11 +143,11 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        Button startWebView = findViewById(R.id.startWebView);
+        Button startWebView = (Button)findViewById(R.id.startWebView);
         startWebView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText edHttpdUrl = findViewById(R.id.edHttpdUrl);//httpd server url
+                EditText edHttpdUrl = (EditText) findViewById(R.id.edHttpdUrl);//httpd server url
                 tmp = edHttpdUrl.getText().toString();
                 if(!(tmp.isEmpty()) && (tmp.length() != 0)){
                     constant.setHTTPIPPORT("http://"+tmp+":8080");
