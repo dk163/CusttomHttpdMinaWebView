@@ -12,7 +12,7 @@ public class Constant {
 	public  static int MINA_PORT = 12345;
 	public  static int HTTPD_PORT = 8080;
 	public  static String MINA_IP = "192.168.43.1";
-	public  static String HTTPDIPPORT="http://192.168.43.1:8080";
+	public  static String HTTPDIPPORT="http://192.168.43.1:8080/sdcard/";
 //	public  static String MINA_IP = "127.0.0.1";
 //	public  static String HTTPDIPPORT="http://127.0.0.1:8080";
 
