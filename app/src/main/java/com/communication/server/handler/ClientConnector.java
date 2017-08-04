@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
+import java.nio.Buffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -40,9 +41,12 @@ public class ClientConnector {
     
     public final String TAG = "ClientConnector";
 	private ClientCIoHandler mClientHandler;
-	public  IoSession session;
-	private ClientAcceptorHandler mAcceptorHandler;
-	private final int TOAST_SHOW = 0;
+	public  static IoSession session;
+	private static ClientAcceptorHandler mAcceptorHandler;
+	private final int TOAST_SHOW_CONNECT = 0;
+	public final static int TOAST_START_MTKLOG = 1;
+	public final static int TOAST_STOP_MTKLOG = 2;
+	public final static int TOAST_CLEAR_MTKLOG = 3;
 	
     /**
      * Create the ClientConnector's instance
@@ -63,15 +67,15 @@ public class ClientConnector {
 		mAcceptorHandler = new ClientAcceptorHandler(Looper.getMainLooper());
 		connectServer();
 
-//	    try {
-//			Thread.sleep(365 * 24 * 60 * 60 * 1000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	    try {
+			Thread.sleep(365 * 24 * 60 * 60 * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
-	public IoSession getSession() {
+	public static IoSession getSession() {
 		return (session == null)?null:session;
 	}
 
@@ -84,13 +88,13 @@ public class ClientConnector {
 			public void operationComplete(ConnectFuture future) {
 				if (future.isConnected()) {
 					Log.i(TAG, "connectServer connect");
-					mAcceptorHandler.sendEmptyMessage(TOAST_SHOW);
+					mAcceptorHandler.sendEmptyMessage(TOAST_SHOW_CONNECT);
 					session = future.getSession();
-					try {
-						sendData();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+//					try {
+//						sendData();
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
 				} else {
 					Log.e(TAG, "Not connected...exiting");
 				}
@@ -98,11 +102,11 @@ public class ClientConnector {
 		});
 	}
 
-	public void sendData() throws Exception{
-		String msg = "{\"msg_id\":1}";//open httpd server
-		byte [] d =  msg.getBytes();
-		session.write(IoBuffer.wrap(d));
-	}
+//	public void sendData() throws Exception{
+//		String msg = "{\"msg_id\":1}";//open httpd server
+//		byte [] d =  msg.getBytes();
+//		session.write(IoBuffer.wrap(d));
+//	}
 	private class ClientAcceptorHandler extends Handler {
 		public ClientAcceptorHandler(Looper looper) {
 			super(looper);
@@ -113,12 +117,42 @@ public class ClientConnector {
 			super.handleMessage(msg);
 			Log.i(TAG, "msg what: " + msg.what);
 			switch (msg.what) {
-				case TOAST_SHOW:
+				case TOAST_SHOW_CONNECT:
+					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CONNECT_SERVER).getBytes()));
+						Log.i(TAG, "start connect server");
+					}
 					Toast.makeText(CommandHandle.getInstance().getContext(), "client connectServer connect", Toast.LENGTH_SHORT).show();
+					break;
+				case TOAST_START_MTKLOG:
+					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_START_MTKLOG).getBytes()));
+						Log.i(TAG, "start mtklog");
+					}
+					break;
+				case TOAST_STOP_MTKLOG:
+					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
+						Log.i(TAG, "stop mtklog");
+					}
+					break;
+				case TOAST_CLEAR_MTKLOG:
+					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_MTKLOG).getBytes()));
+						Log.i(TAG, "clear mtklog");
+					}
 					break;
 				default:
 					break;
 			}
+		}
+	}
+
+	public static Handler getClientAcceptorHander(){
+		if(null != mAcceptorHandler){
+			return mAcceptorHandler;
+		}else{
+			return null;
 		}
 	}
 }

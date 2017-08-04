@@ -17,26 +17,29 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import com.communication.server.constant.Constant;
+import com.communication.server.handler.ClientConnector;
 import com.communication.server.httpd.NanoHTTPd;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
+import com.communication.server.session.ServerSessionManager;
 import com.kang.custom.service.MinaClient;
 import com.kang.custom.service.MinaServer;
 import com.kang.customhttpdmina.R;
 
+import org.apache.mina.core.buffer.IoBuffer;
+
 public class MainActivity extends AppCompatActivity{
     private final String TAG = "MainActivity";
-    public final static int TOAST_START_HTTPD = 0;
-    public final static int TOAST_STOP_HTTPD = 1;
+
+    private final static int TOAST_START_HTTPD = 0;
+    private final static int TOAST_STOP_HTTPD = 1;
+    private final static int TOAST_ERROR = 2;
+    private final static int TOAST_START_MTKLOG = 3;
+    private final static int TOAST_STOP_MTKLOG = 4;
     private static NanoHTTPd na;
-    //private Intent mIntent;
     private Context mContext;
     //private MyApplication myApplication;
-    private static Constant constant;
     private static String tmp = "";
-    public static MainHandler getmHandler() {
-        return mHandler;
-    }
 
     private static MainHandler mHandler;
     private static MinaClient mc;
@@ -47,7 +50,6 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         mContext = this;
         //myApplication = (MyApplication)getApplication();
-        constant = new Constant();
         mHandler =  new MainHandler(Looper.getMainLooper());
 
         //mina port 8081
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity{
                 EditText etPort = (EditText)findViewById(R.id.serverEditTextPort);
                 tmp = etPort.getText().toString();
                if(!(tmp.isEmpty()) && (tmp.length() !=0)){
-                    constant.setPORT(Integer.parseInt(tmp));//获取输入端口
+                    Constant.setPORT(Integer.parseInt(tmp));//获取输入端口
                 }
 
                 Intent mIntent = new Intent(mContext, MinaServer.class);
@@ -72,7 +74,6 @@ public class MainActivity extends AppCompatActivity{
                 MinaServer.getInstance().stopServer();
                 Intent mIntent = new Intent(mContext, MinaServer.class);
                 stopService(mIntent);
-                //MinaServer.getInstance().onDestroy();
             }
         });
 
@@ -88,12 +89,10 @@ public class MainActivity extends AppCompatActivity{
                 EditText edConIp = (EditText)findViewById(R.id.edConIp);
                 tmp = edConIp.getText().toString();
                 if(!(tmp.isEmpty()) && ((tmp.length()) != 0)){
-                    constant.setIP(tmp);//获取clent ip
+                    Constant.setIP(tmp);//获取clent ip
                 }
-                mc = new MinaClient();
-                //mc.stopClient();
+
                 Intent mIntent = new Intent(mContext, MinaClient.class);
-                //stopService(mIntent);
                 startService(mIntent);
             }
         });
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity{
                     EditText edHttpd = (EditText) findViewById(R.id.edHttpdPort);
                     tmp = edHttpd.getText().toString();
                     if(!(tmp.isEmpty()) && (tmp.length() != 0)){
-                        constant.setHttpdPort(Integer.parseInt(tmp));//获取httpd port
+                        Constant.setHttpdPort(Integer.parseInt(tmp));//获取httpd port
                     }
 
                     try {
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity{
                 EditText edHttpdUrl = (EditText) findViewById(R.id.edHttpdUrl);//httpd server url
                 tmp = edHttpdUrl.getText().toString();
                 if(!(tmp.isEmpty()) && (tmp.length() != 0)){
-                    constant.setHTTPIPPORT("http://"+tmp+":8080");
+                    Constant.setHTTPIPPORT("http://"+tmp+":8080");
                     Log.i(TAG, "httpd server ip: "+ ("http://"+tmp+":8080"));
                 }
 
@@ -159,9 +158,36 @@ public class MainActivity extends AppCompatActivity{
                 Uri content_url = Uri.parse(Constant.HTTPDIPPORT);
                 intent.setData(content_url);
                 startActivity(intent);
-//                mIntent = new Intent(mContext, WebViewActivity.class);
-//                startActivity(mIntent);
+                //mIntent = new Intent(mContext, WebViewActivity.class);
+                //startActivity(mIntent);
                 Log.i(TAG, "open webview");
+            }
+        });
+
+        Button startMtkLog = (Button)findViewById(R.id.startMtkLog);
+        startMtkLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ClientConnector.getClientAcceptorHander() == null){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_START_MTKLOG);
+                Log.i(TAG, "start mtklog");
+                mHandler.sendEmptyMessageDelayed(TOAST_START_MTKLOG, 4*1000);
+            }
+        });
+        Button stopMtkLog = (Button)findViewById(R.id.stopMtkLog);
+        stopMtkLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ClientConnector.getClientAcceptorHander() == null){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_STOP_MTKLOG);
+                Log.i(TAG, "stop mtklog");
+                mHandler.sendEmptyMessageDelayed(TOAST_STOP_MTKLOG, 4*1000);
             }
         });
     }
@@ -170,7 +196,11 @@ public class MainActivity extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "MainActivity onDestroy:");
-        MinaServer.getInstance().stopServer();
+        //MinaServer.getInstance().stopServer();
+//        if(ClientSessionManager.getInstance().getSession(Constant.MINA_PORT) != null){
+//            ClientSessionManager.getInstance().closeAllSession();
+//
+//        }
         if(mc != null )mc.stopClient();
 
         if(na != null) na.stop();
@@ -191,10 +221,23 @@ public class MainActivity extends AppCompatActivity{
                 case TOAST_STOP_HTTPD:
                     Toast.makeText(getApplicationContext(), "stop httpd success", Toast.LENGTH_SHORT).show();
                     break;
+                case TOAST_START_MTKLOG:
+                    Toast.makeText(getApplicationContext(), "start mtklog success", Toast.LENGTH_SHORT).show();
+                    break;
+                case TOAST_STOP_MTKLOG:
+                    Toast.makeText(getApplicationContext(), "stop mtklog success", Toast.LENGTH_SHORT).show();
+                    break;
+                case TOAST_ERROR:
+                    Toast.makeText(getApplicationContext(), "apk error", Toast.LENGTH_SHORT).show();
+
                 default:
                     break;
             }
         }
+    }
+
+    public static MainHandler getmHandler() {
+        return mHandler;
     }
 }
 

@@ -3,15 +3,9 @@ package com.communication.server.handler;
 import android.util.Log;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.prefixedstring.PrefixedStringCodecFactory;
-import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.filter.logging.LoggingFilter;
-import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -29,30 +23,6 @@ import com.communication.server.session.ServerSessionManager;
 
 public class ServerCIoHandler extends IoHandlerAdapter {
     private String TAG = "ServerCIoHandler";
-    private NioSocketAcceptor acceptor;
-
-/*    public void startMinaServer(){
-        Log.i(TAG, "startUDPServer");
-        //acceptor = new NioDatagramAcceptor();//UDP
-        acceptor = new NioSocketAcceptor();
-        acceptor.getSessionConfig().setReadBufferSize(4096);
-        acceptor.getSessionConfig().setTcpNoDelay(true);
-        acceptor.getFilterChain().addLast("executor", new ExecutorFilter());
-        acceptor.getFilterChain().addLast("logger", new LoggingFilter());
-        acceptor.setHandler(this);
-        DefaultIoFilterChainBuilder chain = acceptor.getFilterChain();
-        chain.addLast("codec", new ProtocolCodecFilter(
-                new PrefixedStringCodecFactory(Charset.forName("UTF-8"))));
-        acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ServerMessageCodecFactory()));
-
-        acceptor.setReuseAddress(true);
-        try {
-            acceptor.bind(new InetSocketAddress(Constant.MINA_PORT));
-            Log.i(TAG, "bind end");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     @Override
     public void sessionCreated(IoSession session) throws Exception {
@@ -82,6 +52,7 @@ public class ServerCIoHandler extends IoHandlerAdapter {
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
         super.exceptionCaught(session, cause);
+        Log.e(TAG, "exceptionCaught: ", cause);
     }
 
     @Override
@@ -89,7 +60,7 @@ public class ServerCIoHandler extends IoHandlerAdapter {
         super.messageReceived(session, message);
         byte[] bytes = (byte[])message;
         int port = ((InetSocketAddress)session.getLocalAddress()).getPort();
-        Log.i(TAG, "port "+port);
+        Log.e(TAG, "port: "+port);
         CommandManger.getInstance().process(port, bytes);
     }
 

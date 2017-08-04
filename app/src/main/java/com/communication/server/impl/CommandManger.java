@@ -5,15 +5,18 @@ import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.data.DataBase;
 import com.google.gson.Gson;
+import com.kang.custom.activity.MainActivity;
 
 public final class CommandManger {
 	private volatile static CommandManger instance;
@@ -22,7 +25,7 @@ public final class CommandManger {
 	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();	
 	public Gson mGson = new Gson();
 	private CommandManagerHander mHander;
-	private final int MSG_HEARTBEART = 0;//mifi dvr heartbeart
+	private Intent intent;
 
 	private String mLeftStr = "";
 
@@ -102,11 +105,38 @@ public final class CommandManger {
 	public void handlerJson(String str) {
 		DataBase base = mGson.fromJson(str, DataBase.class);
 		int id = base.getMsg_id();
-		Log.d(TAG,"msg_id:" + base.getMsg_id());
+		Log.d(TAG,"id:" + id);
 		switch (id){
-			case 1:
+			case CommandResource.SYS_CMD_STARTHTTPD:
 				CommandHandle.getInstance().startHttpd();
 				break;
+			case  CommandResource.SYS_CMD_STARTMTKLOG:
+				intent = new Intent();//start mtklog, com.mediatek.mtklogger.ADB_CMD -e cmd_name start/stop --ei cmd_target 23
+				intent.setAction(Constant.ACTION_MTKLOG);
+				intent.putExtra("cmd_name", "start");
+				intent.putExtra("cmd_target", 23);
+				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+				Log.i(TAG, "sendBroadcast mtklog start");
+				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTMTKLOG);
+				break;
+			case CommandResource.SYS_CMD_STOPMTKLOG:
+				intent = new Intent();//stop mtklog
+				intent.setAction(Constant.ACTION_MTKLOG);
+				intent.putExtra("cmd_name", "stop");
+				intent.putExtra("cmd_target", 23);
+				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+				Log.i(TAG, "sendBroadcast mtklog stop");
+				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STOPMTKLOG);
+				break;
+			case CommandResource.SYS_CMD_CLEARMTKLOG:
+				intent = new Intent();//stop mtklog
+				intent.setAction(Constant.ACTION_MTKLOG);
+				intent.putExtra("cmd_name", "clear_all_logs");
+				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+				Log.i(TAG, "sendBroadcast mtklog clear");
+				mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARMTKLOG);
+				break;
+
 			default:
 					Log.i(TAG, "handelrJson switch default");
 					break;
@@ -133,8 +163,17 @@ public final class CommandManger {
 			super.handleMessage(msg);
 			
 			switch(msg.what){
-				case MSG_HEARTBEART:
-					Log.i(TAG,"stop heartbeart task ");
+				case CommandResource.SYS_CMD_STARTMTKLOG:
+					Log.i(TAG,"SYS_CMD_STARTMTKLOG ");
+					Toast.makeText(CommandHandle.getInstance().getContext(), "start mtklog success", Toast.LENGTH_SHORT).show();
+					break;
+				case CommandResource.SYS_CMD_STOPMTKLOG:
+					Log.i(TAG,"SYS_CMD_STOPMTKLOG ");
+					Toast.makeText(CommandHandle.getInstance().getContext(), "stop mtklog success", Toast.LENGTH_SHORT).show();
+					break;
+				case CommandResource.SYS_CMD_CLEARMTKLOG:
+					Log.i(TAG,"SYS_CMD_CLEARMTKLOG ");
+					Toast.makeText(CommandHandle.getInstance().getContext(), "clear mtklog success", Toast.LENGTH_SHORT).show();
 					break;
 				default:
 					break;

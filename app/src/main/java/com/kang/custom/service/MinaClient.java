@@ -53,8 +53,8 @@ public class MinaClient extends Service implements Runnable {
     @Override
     public void run() {
         client = new ClientConnector();
-//        client.connector.dispose(true);
-        client.connector.dispose(false);
+        client.connector.dispose(true);
+        //client.connector.dispose(false);
     }
 
     public void stopClient(){

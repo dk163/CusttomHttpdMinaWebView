@@ -25,6 +25,7 @@ public class ClientCIoHandler extends IoHandlerAdapter {
 		int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
 		CSession wrapperSession = new CSession(session);
 		ClientSessionManager.getInstance().addSession(port, wrapperSession);
+		Log.i(TAG, "sessionCreated");
 
 	}
 
@@ -34,6 +35,7 @@ public class ClientCIoHandler extends IoHandlerAdapter {
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
 		byte[] bytes = (byte[])message;
+		Log.i(TAG, "messageReceived");
 	}
 	
 	public void sessionClosed(IoSession session) throws Exception {
@@ -53,10 +55,8 @@ public class ClientCIoHandler extends IoHandlerAdapter {
 	
 	// 发送到服务端
 	public static void SendToServer(int port, IoBuffer ib) {
-	//LogUtils.d("SendToClient port:" + port +",session:" + ClientSessionManager.getInstance().getSession(Constant.CIM_CLIENT_PORT1));
 		if (ClientSessionManager.getInstance().getSession(port) != null) {
 			ClientSessionManager.getInstance().getSession(port).write(ib);
-		//ClientSessionManager.getInstance().getSession(port).write(IoBuffer.wrap(str));
 		}
 	}
 	
