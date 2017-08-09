@@ -10,6 +10,7 @@ import java.util.Date;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -96,10 +97,10 @@ public class CommandHandle {
 	            file.delete();
 	            return;
 	        }
-	        if(childFile.length == 5){
+	        if(childFile.length == 2){
 		        for(File f : childFile){
 		            RecursionDeleteFile(f);
-		            Log.d(TAG,"dele >5 files");
+		            Log.d(TAG,"dele >2 files");
 		        }
 	        }
 	    }
@@ -114,5 +115,17 @@ public class CommandHandle {
 			e.printStackTrace();
 		}
 		Log.i(TAG, "start com.communication.server.httpd");
+	}
+
+	public boolean  clearLog(){
+		final String dir = "NightVision";
+		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
+		Log.i(TAG, "start clearLog del path: " + des);
+
+		File file = new File(des);//the file to save the path
+		RecursionDeleteFile(file);
+		Log.i(TAG, "clear log success");
+
+		return true;
 	}
 }

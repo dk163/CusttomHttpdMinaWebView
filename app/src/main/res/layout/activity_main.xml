@@ -137,7 +137,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="MTKLog"
+                    android:text="Log"
                     android:textSize="35dp" />
             </LinearLayout>
 
@@ -160,6 +160,20 @@
                     android:layout_weight="1"
                     android:textAllCaps="false"
                     android:text="stopMtkLog" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/clearNightVisionLog"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAllCaps="false"
+                    android:text="clearNightVisionLog" />
             </LinearLayout>
 
             <View

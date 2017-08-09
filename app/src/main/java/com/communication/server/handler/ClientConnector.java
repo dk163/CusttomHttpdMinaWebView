@@ -47,6 +47,7 @@ public class ClientConnector {
 	public final static int TOAST_START_MTKLOG = 1;
 	public final static int TOAST_STOP_MTKLOG = 2;
 	public final static int TOAST_CLEAR_MTKLOG = 3;
+	public final static int TOAST_CLEAR_NIGHTVISION = 4;
 	
     /**
      * Create the ClientConnector's instance
@@ -142,6 +143,13 @@ public class ClientConnector {
 						Log.i(TAG, "clear mtklog");
 					}
 					break;
+				case TOAST_CLEAR_NIGHTVISION:
+					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_NIGHTVISION).getBytes()));
+						Log.i(TAG, "clear nightVision log");
+					}
+					break;
+
 				default:
 					break;
 			}

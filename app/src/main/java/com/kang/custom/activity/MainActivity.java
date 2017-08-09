@@ -31,11 +31,12 @@ import org.apache.mina.core.buffer.IoBuffer;
 public class MainActivity extends AppCompatActivity{
     private final String TAG = "MainActivity";
 
-    private final static int TOAST_START_HTTPD = 0;
-    private final static int TOAST_STOP_HTTPD = 1;
-    private final static int TOAST_ERROR = 2;
-    private final static int TOAST_START_MTKLOG = 3;
-    private final static int TOAST_STOP_MTKLOG = 4;
+    private final int TOAST_START_HTTPD = 0;
+    private final int TOAST_STOP_HTTPD = 1;
+    private final int TOAST_ERROR = 2;
+    private final int TOAST_START_MTKLOG = 3;
+    private final int TOAST_STOP_MTKLOG = 4;
+    private final int TOAST_CLEAR_NIGHTVISION = 5;
     private static NanoHTTPd na;
     private Context mContext;
     //private MyApplication myApplication;
@@ -190,6 +191,20 @@ public class MainActivity extends AppCompatActivity{
                 mHandler.sendEmptyMessageDelayed(TOAST_STOP_MTKLOG, 4*1000);
             }
         });
+
+        Button clearNightVisionLog = (Button)findViewById(R.id.clearNightVisionLog);
+        clearNightVisionLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ClientConnector.getClientAcceptorHander() == null){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_CLEAR_NIGHTVISION);
+                Log.i(TAG, "clear NightVision log");
+                mHandler.sendEmptyMessageDelayed(TOAST_CLEAR_NIGHTVISION, 4*1000);
+            }
+        });
     }
 
     @Override
@@ -229,6 +244,10 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case TOAST_ERROR:
                     Toast.makeText(getApplicationContext(), "apk error", Toast.LENGTH_SHORT).show();
+                    break;
+                case TOAST_CLEAR_NIGHTVISION:
+                    Toast.makeText(getApplicationContext(), "clear NightVision log success", Toast.LENGTH_SHORT).show();
+                    break;
 
                 default:
                     break;

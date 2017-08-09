@@ -20,6 +20,8 @@ public class Constant {
 	public static final String CMD_START_MTKLOG = "{\"msg_id\":2}";
 	public static final String CMD_STOP_MTKLOG = "{\"msg_id\":3}";
 	public static final String CMD_CLEAR_MTKLOG = "{\"msg_id\":4}";
+	public static final String CMD_CLEAR_NIGHTVISION = "{\"msg_id\":5}";
+
 	public static final String ACTION_MTKLOG = "com.mediatek.mtklogger.ADB_CMD";
 
 	public static void setPORT(int PORT) {

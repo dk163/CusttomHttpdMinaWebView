@@ -136,6 +136,11 @@ public final class CommandManger {
 				Log.i(TAG, "sendBroadcast mtklog clear");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARMTKLOG);
 				break;
+			case CommandResource.SYS_CMD_CLEARLOG:
+				if(CommandHandle.getInstance().clearLog()){
+					mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARLOG);
+				}
+				break;
 
 			default:
 					Log.i(TAG, "handelrJson switch default");
@@ -175,6 +180,11 @@ public final class CommandManger {
 					Log.i(TAG,"SYS_CMD_CLEARMTKLOG ");
 					Toast.makeText(CommandHandle.getInstance().getContext(), "clear mtklog success", Toast.LENGTH_SHORT).show();
 					break;
+				case CommandResource.SYS_CMD_CLEARLOG:
+					Log.i(TAG, "SYS_CMD_CLEARLOG");
+					Toast.makeText(CommandHandle.getInstance().getContext(), "clear NightVision log", Toast.LENGTH_SHORT).show();
+					break;
+
 				default:
 					break;
 			}
