@@ -18,7 +18,7 @@ Button stopClient
 CustomLog tools
 
 launch activity 
-https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/CusttomLog_mainActivity.png
+https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/CustomLog_mainActivity
 
 目的
 ROM管理设备端自定义的log
