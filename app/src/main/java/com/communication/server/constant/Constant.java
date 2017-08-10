@@ -1,13 +1,8 @@
 package com.communication.server.constant;
 
 public class Constant {
-//	private static  String CIM_SERVER_IP = "192.168.42.1";
 	public  static   String HEARTBEAT_KEY = "heartbeat";
 	public  static String SESSION_KEY = "account";
-//	private static  int CIM_SERVER_PORT1 = 7878;
-//	private static  int CIM_SERVER_PORT2 = 8787;
-//	private static  int CIM_CLIENT_PORT1 = 7878;
-//	private static  int CIM_CLIENT_PORT2 = 8787;
 
 	public  static int MINA_PORT = 12345;
 	public  static int HTTPD_PORT = 8080;
@@ -20,7 +15,7 @@ public class Constant {
 	public static final String CMD_START_MTKLOG = "{\"msg_id\":2}";
 	public static final String CMD_STOP_MTKLOG = "{\"msg_id\":3}";
 	public static final String CMD_CLEAR_MTKLOG = "{\"msg_id\":4}";
-	public static final String CMD_CLEAR_NIGHTVISION = "{\"msg_id\":5}";
+	public static final String CMD_CLEAR_LOG= "{\"msg_id\":5}";
 
 	public static final String ACTION_MTKLOG = "com.mediatek.mtklogger.ADB_CMD";
 

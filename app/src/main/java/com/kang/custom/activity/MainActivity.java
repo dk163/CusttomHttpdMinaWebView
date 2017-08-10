@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity{
     private final int TOAST_ERROR = 2;
     private final int TOAST_START_MTKLOG = 3;
     private final int TOAST_STOP_MTKLOG = 4;
-    private final int TOAST_CLEAR_NIGHTVISION = 5;
+    private final int TOAST_CLEAR_LOG = 5;
+    private final int TOAST_STOP_CLIENT = 6;
     private static NanoHTTPd na;
     private Context mContext;
     //private MyApplication myApplication;
@@ -50,33 +51,33 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
-        //myApplication = (MyApplication)getApplication();
+//        myApplication = (MyApplication)getApplication();
         mHandler =  new MainHandler(Looper.getMainLooper());
 
         //mina port 8081
-        Button startServer = (Button) findViewById(R.id.startServer);
-        startServer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText etPort = (EditText)findViewById(R.id.serverEditTextPort);
-                tmp = etPort.getText().toString();
-               if(!(tmp.isEmpty()) && (tmp.length() !=0)){
-                    Constant.setPORT(Integer.parseInt(tmp));//获取输入端口
-                }
-
-                Intent mIntent = new Intent(mContext, MinaServer.class);
-                startService(mIntent);
-            }
-        });
-        Button stopServer = (Button)findViewById(R.id.stopServer);
-        stopServer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MinaServer.getInstance().stopServer();
-                Intent mIntent = new Intent(mContext, MinaServer.class);
-                stopService(mIntent);
-            }
-        });
+//        Button startServer = (Button) findViewById(R.id.startServer);
+//        startServer.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                EditText etPort = (EditText)findViewById(R.id.serverEditTextPort);
+//                tmp = etPort.getText().toString();
+//               if(!(tmp.isEmpty()) && (tmp.length() !=0)){
+//                    Constant.setPORT(Integer.parseInt(tmp));//获取输入端口
+//                }
+//
+//                Intent mIntent = new Intent(mContext, MinaServer.class);
+//                startService(mIntent);
+//            }
+//        });
+//        Button stopServer = (Button)findViewById(R.id.stopServer);
+//        stopServer.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                MinaServer.getInstance().stopServer();
+//                Intent mIntent = new Intent(mContext, MinaServer.class);
+//                stopService(mIntent);
+//            }
+//        });
 
         Button startClient = (Button)findViewById(R.id.startClient);
         startClient.setOnClickListener(new View.OnClickListener() {
@@ -101,47 +102,51 @@ public class MainActivity extends AppCompatActivity{
         stopClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mc != null) mc.stopClient();
-                Intent mIntent = new Intent(mContext, MinaClient.class);
-                stopService(mIntent);
-
-            }
-        });
-
-        //httpd port 8080
-        Button startHttpd = (Button)findViewById(R.id.startHttpd);
-        startHttpd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                    EditText edHttpd = (EditText) findViewById(R.id.edHttpdPort);
-                    tmp = edHttpd.getText().toString();
-                    if(!(tmp.isEmpty()) && (tmp.length() != 0)){
-                        Constant.setHttpdPort(Integer.parseInt(tmp));//获取httpd port
-                    }
-
-                    try {
-                        if(na == null){
-                            na = new NanoHTTPd(Constant.HTTPD_PORT);
-                            mHandler.sendEmptyMessage(TOAST_START_HTTPD);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                Log.i(TAG, "start com.communication.server.httpd");
-            }
-        });
-
-        Button stopHttpd = (Button)findViewById(R.id.stopHttpd);
-        stopHttpd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(na != null){
-                    na.stop();
+                if(mc == null){
+                    mHandler.sendEmptyMessage(TOAST_ERROR);
+                }else{
+                    Intent mIntent = new Intent(mContext, MinaClient.class);
+                    stopService(mIntent);
+                    mc.stopClient();
+                    mHandler.sendEmptyMessageDelayed(TOAST_STOP_CLIENT, 0);
                 }
-                Log.i(TAG, "stop com.communication.server.httpd");
             }
         });
+
+//        //httpd port 8080
+//        Button startHttpd = (Button)findViewById(R.id.startHttpd);
+//        startHttpd.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                    EditText edHttpd = (EditText) findViewById(R.id.edHttpdPort);
+//                    tmp = edHttpd.getText().toString();
+//                    if(!(tmp.isEmpty()) && (tmp.length() != 0)){
+//                        Constant.setHttpdPort(Integer.parseInt(tmp));//获取httpd port
+//                    }
+//
+//                    try {
+//                        if(na == null){
+//                            na = new NanoHTTPd(Constant.HTTPD_PORT);
+//                            mHandler.sendEmptyMessage(TOAST_START_HTTPD);
+//                        }
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                Log.i(TAG, "start com.communication.server.httpd");
+//            }
+//        });
+//
+//        Button stopHttpd = (Button)findViewById(R.id.stopHttpd);
+//        stopHttpd.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(na != null){
+//                    na.stop();
+//                }
+//                Log.i(TAG, "stop com.communication.server.httpd");
+//            }
+//        });
 
         Button startWebView = (Button)findViewById(R.id.startWebView);
         startWebView.setOnClickListener(new View.OnClickListener() {
@@ -159,8 +164,8 @@ public class MainActivity extends AppCompatActivity{
                 Uri content_url = Uri.parse(Constant.HTTPDIPPORT);
                 intent.setData(content_url);
                 startActivity(intent);
-                //mIntent = new Intent(mContext, WebViewActivity.class);
-                //startActivity(mIntent);
+//                mIntent = new Intent(mContext, WebViewActivity.class);
+//                startActivity(mIntent);
                 Log.i(TAG, "open webview");
             }
         });
@@ -175,7 +180,6 @@ public class MainActivity extends AppCompatActivity{
                 }
                 ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_START_MTKLOG);
                 Log.i(TAG, "start mtklog");
-                mHandler.sendEmptyMessageDelayed(TOAST_START_MTKLOG, 4*1000);
             }
         });
         Button stopMtkLog = (Button)findViewById(R.id.stopMtkLog);
@@ -188,21 +192,19 @@ public class MainActivity extends AppCompatActivity{
                 }
                 ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_STOP_MTKLOG);
                 Log.i(TAG, "stop mtklog");
-                mHandler.sendEmptyMessageDelayed(TOAST_STOP_MTKLOG, 4*1000);
             }
         });
 
-        Button clearNightVisionLog = (Button)findViewById(R.id.clearNightVisionLog);
-        clearNightVisionLog.setOnClickListener(new View.OnClickListener() {
+        Button clearCustomLog = (Button)findViewById(R.id.clearCustomLog);
+        clearCustomLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(ClientConnector.getClientAcceptorHander() == null){
                     mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
                     return;
                 }
-                ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_CLEAR_NIGHTVISION);
+                ClientConnector.getClientAcceptorHander().sendEmptyMessage(ClientConnector.TOAST_CLEAR_LOG);
                 Log.i(TAG, "clear NightVision log");
-                mHandler.sendEmptyMessageDelayed(TOAST_CLEAR_NIGHTVISION, 4*1000);
             }
         });
     }
@@ -220,7 +222,7 @@ public class MainActivity extends AppCompatActivity{
 
         if(na != null) na.stop();
     }
-	 public class MainHandler extends Handler{
+	 private class MainHandler extends Handler{
 
          public MainHandler(Looper looper) {
              super(looper);
@@ -236,17 +238,11 @@ public class MainActivity extends AppCompatActivity{
                 case TOAST_STOP_HTTPD:
                     Toast.makeText(getApplicationContext(), "stop httpd success", Toast.LENGTH_SHORT).show();
                     break;
-                case TOAST_START_MTKLOG:
-                    Toast.makeText(getApplicationContext(), "start mtklog success", Toast.LENGTH_SHORT).show();
-                    break;
-                case TOAST_STOP_MTKLOG:
-                    Toast.makeText(getApplicationContext(), "stop mtklog success", Toast.LENGTH_SHORT).show();
-                    break;
                 case TOAST_ERROR:
                     Toast.makeText(getApplicationContext(), "apk error", Toast.LENGTH_SHORT).show();
                     break;
-                case TOAST_CLEAR_NIGHTVISION:
-                    Toast.makeText(getApplicationContext(), "clear NightVision log success", Toast.LENGTH_SHORT).show();
+                case TOAST_STOP_CLIENT:
+                    Toast.makeText(getApplicationContext(), "stop client success", Toast.LENGTH_SHORT).show();
                     break;
 
                 default:

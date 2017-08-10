@@ -28,7 +28,8 @@ public class ServerCIoHandler extends IoHandlerAdapter {
     public void sessionCreated(IoSession session) throws Exception {
         super.sessionCreated(session);
         CSession wrapperSession = new CSession(session);
-        int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
+        //int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
+        int port = ((InetSocketAddress)session.getLocalAddress()).getPort();
         ServerSessionManager.getInstance().addSession(port, wrapperSession);
         Log.i(TAG, "sessionCreated");
     }
@@ -60,6 +61,8 @@ public class ServerCIoHandler extends IoHandlerAdapter {
         super.messageReceived(session, message);
         byte[] bytes = (byte[])message;
         int port = ((InetSocketAddress)session.getLocalAddress()).getPort();
+        CSession wrapperSession = new CSession(session);
+        ServerSessionManager.getInstance().addSession(port, wrapperSession);
         Log.e(TAG, "port: "+port);
         CommandManger.getInstance().process(port, bytes);
     }
