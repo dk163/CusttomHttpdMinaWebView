@@ -1,4 +1,13 @@
-package com.communication.server.impl;
+package com.communication.server.clientImpl;
+
+import android.content.Context;
+import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
+
+import com.communication.server.constant.Constant;
+import com.communication.server.httpd.NanoHTTPd;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,22 +17,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Environment;
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
 
-import com.communication.server.constant.Constant;
-import com.communication.server.handler.ServerAcceptor;
-import com.communication.server.httpd.NanoHTTPd;
-import com.google.gson.Gson;
-
-public class CommandHandle {
+public class CommandHandleClient {
 	
-	private volatile static CommandHandle instance;
-	public static String TAG = "CommandHandle";
+	private volatile static CommandHandleClient instance;
+	public static String TAG = "CommandHandleClient";
 	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();	
 	public Gson mGson = new Gson();
 
@@ -33,14 +31,14 @@ public class CommandHandle {
 	private static Handler mHandler = new Handler();
 
 	
-	private CommandHandle() {
+	private CommandHandleClient() {
 	}
 	
-	public static CommandHandle getInstance() {
+	public static CommandHandleClient getInstance() {
 		if (instance == null) {
-			synchronized (CommandHandle.class) {
+			synchronized (CommandHandleClient.class) {
 				if (instance == null) {
-					instance = new CommandHandle();
+					instance = new CommandHandleClient();
 				}
 			}
 		}
@@ -102,7 +100,6 @@ public class CommandHandle {
 				Log.d(TAG,"delete files");
 			}
 	    }
-	    file.delete();
 	}
 
 	public void  startHttpd(){

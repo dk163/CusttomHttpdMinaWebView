@@ -8,12 +8,10 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.json.JSONObject;
 
+import com.communication.server.clientImpl.CommandMangerClient;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
-import com.communication.server.session.ServerSessionManager;
-import com.google.gson.Gson;
 
 /**
  * 客户端请求的入口，所有请求都首先经过它分发处理
@@ -35,7 +33,9 @@ public class ClientCIoHandler extends IoHandlerAdapter {
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
 		byte[] bytes = (byte[])message;
-		Log.i(TAG, "messageReceived");
+
+		Log.e(TAG, "port: "+port);
+		CommandMangerClient.getInstance().process(port, bytes);
 	}
 	
 	public void sessionClosed(IoSession session) throws Exception {
