@@ -18,7 +18,7 @@
                 android:text="Mina"
                 android:textSize="35dp" />
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -70,9 +70,9 @@
                     android:layout_weight="1"
                     android:textAllCaps="false"
                     android:text="stopServer" />
-            </LinearLayout>
+            </LinearLayout>-->
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -82,7 +82,7 @@
                     android:layout_weight="1"
                     android:text="Client"
                     android:textSize="25dp" />
-            </LinearLayout>
+            </LinearLayout>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -168,12 +168,12 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/clearNightVisionLog"
+                    android:id="@+id/clearCustomLog"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textAllCaps="false"
-                    android:text="clearNightVisionLog" />
+                    android:text="clearCustomLog" />
             </LinearLayout>
 
             <View
@@ -181,7 +181,7 @@
                 android:layout_height="10px"
                 android:background="#696969"></View>
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -232,7 +232,7 @@
                     android:layout_weight="1"
                     android:textAllCaps="false"
                     android:text="stopHttpd" />
-            </LinearLayout>
+            </LinearLayout>-->
 
             <LinearLayout
                 android:layout_width="match_parent"

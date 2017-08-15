@@ -97,13 +97,12 @@ public class CommandHandle {
 	            file.delete();
 	            return;
 	        }
-	        if(childFile.length == 2){
-		        for(File f : childFile){
-		            RecursionDeleteFile(f);
-		            Log.d(TAG,"dele >2 files");
-		        }
-	        }
+			for(File f : childFile){
+				RecursionDeleteFile(f);
+				Log.d(TAG,"delete files");
+			}
 	    }
+	    file.delete();
 	}
 
 	public void  startHttpd(){
@@ -124,6 +123,14 @@ public class CommandHandle {
 
 		File file = new File(des);//the file to save the path
 		RecursionDeleteFile(file);
+
+		final String dir2 = "mtklog";
+		final String des2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir2;
+		Log.i(TAG, "start clearLog del path: " + des2);
+
+		File file2 = new File(des2);//the file to save the path
+		RecursionDeleteFile(file2);
+
 		Log.i(TAG, "clear log success");
 
 		return true;

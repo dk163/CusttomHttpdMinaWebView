@@ -15,8 +15,10 @@ import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.data.DataBase;
+import com.communication.server.session.CSession;
+import com.communication.server.session.ClientSessionManager;
+import com.communication.server.session.ServerSessionManager;
 import com.google.gson.Gson;
-import com.kang.custom.activity.MainActivity;
 
 public final class CommandManger {
 	private volatile static CommandManger instance;
@@ -62,8 +64,8 @@ public final class CommandManger {
 		
 		return;
 	}
-	
-	public void handlerPackage(String str) {
+
+	private void handlerPackage(String str) {
 		int left = 0;
         int right = 0;
         int index = 0;
@@ -101,14 +103,17 @@ public final class CommandManger {
         	
         }
 	}
-	
-	public void handlerJson(String str) {
+
+	private void handlerJson(String str) {
 		DataBase base = mGson.fromJson(str, DataBase.class);
+		CSession session  =  ServerSessionManager.getInstance().getSession(Constant.MINA_PORT);;
 		int id = base.getMsg_id();
 		Log.d(TAG,"id:" + id);
 		switch (id){
 			case CommandResource.SYS_CMD_STARTHTTPD:
 				CommandHandle.getInstance().startHttpd();
+
+				session.write(IoBuffer.wrap((Constant.CMD_CONNECT_SERVER).getBytes()));
 				break;
 			case  CommandResource.SYS_CMD_STARTMTKLOG:
 				intent = new Intent();//start mtklog, com.mediatek.mtklogger.ADB_CMD -e cmd_name start/stop --ei cmd_target 23
@@ -118,6 +123,8 @@ public final class CommandManger {
 				CommandHandle.getInstance().getContext().sendBroadcast(intent);
 				Log.i(TAG, "sendBroadcast mtklog start");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTMTKLOG);
+
+				session.write(IoBuffer.wrap((Constant.CMD_START_MTKLOG).getBytes()));
 				break;
 			case CommandResource.SYS_CMD_STOPMTKLOG:
 				intent = new Intent();//stop mtklog
@@ -127,6 +134,8 @@ public final class CommandManger {
 				CommandHandle.getInstance().getContext().sendBroadcast(intent);
 				Log.i(TAG, "sendBroadcast mtklog stop");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STOPMTKLOG);
+
+				session.write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
 				break;
 			case CommandResource.SYS_CMD_CLEARMTKLOG:
 				intent = new Intent();//stop mtklog
@@ -137,9 +146,12 @@ public final class CommandManger {
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARMTKLOG);
 				break;
 			case CommandResource.SYS_CMD_CLEARLOG:
+				Log.i(TAG, "SYS_CMD_CLEARLOG");
 				if(CommandHandle.getInstance().clearLog()){
 					mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARLOG);
 				}
+
+				session.write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
 				break;
 
 			default:
@@ -148,14 +160,14 @@ public final class CommandManger {
 		}
 	}
 	
-	public static byte[] hexStringToBytes(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
-        }
-        return data;
-    }
+//	public static byte[] hexStringToBytes(String s) {
+//        int len = s.length();
+//        byte[] data = new byte[len / 2];
+//        for (int i = 0; i < len; i += 2) {
+//            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+//        }
+//        return data;
+//    }
 	
 	private class CommandManagerHander extends Handler{
 		public CommandManagerHander(Looper looper){

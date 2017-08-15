@@ -26,9 +26,11 @@ import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
+import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
 import com.communication.server.filter.ServerMessageCodecFactory;
 import com.communication.server.impl.CommandHandle;
+import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
 
@@ -41,13 +43,14 @@ public class ClientConnector {
     
     public final String TAG = "ClientConnector";
 	private ClientCIoHandler mClientHandler;
-	public  static IoSession session;
 	private static ClientAcceptorHandler mAcceptorHandler;
+	private CSession session = null;
+
 	private final int TOAST_SHOW_CONNECT = 0;
 	public final static int TOAST_START_MTKLOG = 1;
 	public final static int TOAST_STOP_MTKLOG = 2;
 	public final static int TOAST_CLEAR_MTKLOG = 3;
-	public final static int TOAST_CLEAR_NIGHTVISION = 4;
+	public final static int TOAST_CLEAR_LOG = 4;
 	
     /**
      * Create the ClientConnector's instance
@@ -76,10 +79,6 @@ public class ClientConnector {
 		}
     }
 
-	public static IoSession getSession() {
-		return (session == null)?null:session;
-	}
-
 	private void connectServer(){
 		ConnectFuture connFuture = connector.connect(new InetSocketAddress(Constant.MINA_IP, Constant.MINA_PORT));
 		if(connFuture == null)
@@ -90,12 +89,6 @@ public class ClientConnector {
 				if (future.isConnected()) {
 					Log.i(TAG, "connectServer connect");
 					mAcceptorHandler.sendEmptyMessage(TOAST_SHOW_CONNECT);
-					session = future.getSession();
-//					try {
-//						sendData();
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
 				} else {
 					Log.e(TAG, "Not connected...exiting");
 				}
@@ -103,11 +96,7 @@ public class ClientConnector {
 		});
 	}
 
-//	public void sendData() throws Exception{
-//		String msg = "{\"msg_id\":1}";//open httpd server
-//		byte [] d =  msg.getBytes();
-//		session.write(IoBuffer.wrap(d));
-//	}
+
 	private class ClientAcceptorHandler extends Handler {
 		public ClientAcceptorHandler(Looper looper) {
 			super(looper);
@@ -117,36 +106,40 @@ public class ClientConnector {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			Log.i(TAG, "msg what: " + msg.what);
+			session = ClientSessionManager.getInstance().getSession(Constant.MINA_PORT);
+			if(session == null){
+				Log.e(TAG, " client session is null");
+				return;
+			}
 			switch (msg.what) {
 				case TOAST_SHOW_CONNECT:
-					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CONNECT_SERVER).getBytes()));
 						Log.i(TAG, "start connect server");
 					}
-					Toast.makeText(CommandHandle.getInstance().getContext(), "client connectServer connect", Toast.LENGTH_SHORT).show();
 					break;
 				case TOAST_START_MTKLOG:
-					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_START_MTKLOG).getBytes()));
 						Log.i(TAG, "start mtklog");
 					}
 					break;
 				case TOAST_STOP_MTKLOG:
-					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
 						Log.i(TAG, "stop mtklog");
 					}
 					break;
 				case TOAST_CLEAR_MTKLOG:
-					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
+					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_MTKLOG).getBytes()));
 						Log.i(TAG, "clear mtklog");
 					}
 					break;
-				case TOAST_CLEAR_NIGHTVISION:
-					if(null != ClientSessionManager.getInstance().getSession(Constant.MINA_PORT)){
-						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_NIGHTVISION).getBytes()));
-						Log.i(TAG, "clear nightVision log");
+				case TOAST_CLEAR_LOG:
+					if(null != session){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
+						Log.i(TAG, "clear custom log");
 					}
 					break;
 

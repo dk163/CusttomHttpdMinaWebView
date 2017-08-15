@@ -6,8 +6,12 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.communication.server.clientImpl.CommandHandleClient;
+import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
 import com.communication.server.impl.CommandHandle;
+import com.communication.server.session.CSession;
+import com.communication.server.session.ClientSessionManager;
 
 import org.apache.mina.core.session.IoSession;
 
@@ -42,7 +46,7 @@ public class MinaClient extends Service implements Runnable {
         Thread thread = new Thread(this);
         thread.start();
 
-        CommandHandle.getInstance().setContext(getApplicationContext());
+        CommandHandleClient.getInstance().setContext(getApplicationContext());
     }
     @Nullable
     @Override
@@ -62,10 +66,11 @@ public class MinaClient extends Service implements Runnable {
             Log.e(TAG, "stopClient client = null");
             return;
         }
-        IoSession is = client.getSession();
-        if( is != null){
-            client.getSession().close(true);
+        CSession session = ClientSessionManager.getInstance().getSession(Constant.MINA_PORT);
+        if( session != null){
+            session.close(true);
         }
+        client = null;
         Log.i(TAG, "stopClient");
     }
 }
