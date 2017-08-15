@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity{
 
                 Intent mIntent = new Intent(mContext, MinaClient.class);
                 startService(mIntent);
+                mc = MinaClient.getInstance();
             }
         });
         Button stopClient = (Button)findViewById(R.id.stopClient);
@@ -239,7 +240,7 @@ public class MainActivity extends AppCompatActivity{
                     Toast.makeText(getApplicationContext(), "stop httpd success", Toast.LENGTH_SHORT).show();
                     break;
                 case TOAST_ERROR:
-                    Toast.makeText(getApplicationContext(), "apk error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                     break;
                 case TOAST_STOP_CLIENT:
                     Toast.makeText(getApplicationContext(), "stop client success", Toast.LENGTH_SHORT).show();
