@@ -123,21 +123,12 @@ public class MulticastMonitor{
 					}
 				} catch (Exception e) {
 					mMutilcastMoniting = false;
-					Log.e(TAG, "handleMessage Exception : ", e);
+					Log.i(TAG, "handleMessage Exception : ", e);
 					return;
 				}
 				
 				mMonitorHandler.sendEmptyMessage(NEW_RECEIVERTHREAD);
 				Log.d(TAG, "handleMessage monitor NEW_RECEIVERTHREAD end");
-//				if((null != mReceiverThread)){
-//					Log.i(TAG, "mReceiverThread.start()");
-//					try {
-//						mReceiverThread.start();
-//					} catch (Exception e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
 				break;
 				
 			case MONITOR_STOP:
@@ -205,7 +196,7 @@ public class MulticastMonitor{
 				mMutilcastMoniting = false;
 				
 				mMonitorHandler.removeMessages(MONITOR_START);
-				//mMonitorHandler.obtainMessage(MONITOR_STOP).sendToTarget();
+				mMonitorHandler.obtainMessage(MONITOR_STOP).sendToTarget();
 				
 				WifiConnectManager.getInstance(mContext).openWifi(SWITCH_AP);
 				break;
@@ -230,7 +221,7 @@ public class MulticastMonitor{
 						Log.d(TAG, "handleMessage MONITOR_START receive ");
 						byte buf[] = new byte[1024];
 						mDp = new DatagramPacket(buf, buf.length);
-						while (!mReceiverThread.isInterrupted()) {
+						while ((!mReceiverThread.isInterrupted()) && (null != mSocket)) {
 							try {
 								mSocket.receive(mDp);
 								String receiver = new String(mDp.getData()).trim();
@@ -241,8 +232,8 @@ public class MulticastMonitor{
 										receiver).sendToTarget();
 								Thread.sleep(3000);
 							} catch (InterruptedException e) {
-								Log.e(TAG, "handleMessage InterruptedException e ",
-										e);
+//								Log.e(TAG, "handleMessage InterruptedException e ",
+//										e);
 								break;
 							}
 						}

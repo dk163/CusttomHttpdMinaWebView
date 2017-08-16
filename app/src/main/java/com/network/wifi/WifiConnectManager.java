@@ -56,7 +56,7 @@ public class WifiConnectManager {
     	mHander.sendEmptyMessageDelayed(CONNECT_START, 3*1000);
     	mTimeOut = false;
     	mInitNetwork = false;
-    	mHander.sendEmptyMessageDelayed(CONNECT_TIMEOUT, (1*60*1000+30*1000));//1min 30s open AP again
+    	mHander.sendEmptyMessageDelayed(CONNECT_TIMEOUT, (1*60*1000));//1min  open AP again
     }
     
     private class ConnectWifiHandler extends Handler{
@@ -111,12 +111,16 @@ public class WifiConnectManager {
 		
 		private  boolean isWifiConnected(){
 			boolean isConnected = false;
+			String ssid = "";
 	        ConnectivityManager connectivityManager = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 	        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 	        if(wifiNetworkInfo.isConnected()){
-	           isConnected = true;
+	        	ssid = getWifiInfo().getSSID();
+	        	if(("\"".concat(ssId).concat("\"")).equals(ssid)){
+		        	isConnected = true;
+	        	}
 	        }
-	        Log.d(TAG,"isWifiConnected isConnected = "+isConnected);  
+	        Log.d(TAG,"isWifiConnected isConnected = "+isConnected+" ,ssid: " + ssid);  
 	        return isConnected ;
 		}
 		 
@@ -176,22 +180,22 @@ public class WifiConnectManager {
 		    		wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
 		    		wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
 	    			id = mWifiManager.addNetwork(wifiConfig);
-	    		}else{
-	    			wifiConfig.preSharedKey = "\"".concat(password).concat("\"");
-		    		wifiConfig.allowedKeyManagement.set(cipherType);
-	    			id = mWifiManager.updateNetwork(wifiConfig);
-	    			if(id == -1){
-	    				Log.e(TAG, "updateNetWork is not exists");
-	    				return false;
-	    			}
 	    		}
+//	    		else{
+//	    			wifiConfig.preSharedKey = "\"".concat(password).concat("\"");
+//		    		wifiConfig.allowedKeyManagement.set(cipherType);
+//	    			id = mWifiManager.updateNetwork(wifiConfig);
+//	    			if(id == -1){
+//	    				Log.e(TAG, "updateNetWork is not exists");
+//	    				return false;
+//	    			}
+//	    		}
 	    		
 	    		mInitNetwork = true;
 	    		Log.i(TAG, "wifiConfig  new config");
 	    	}
 	    	
 	    	boolean ret = mWifiManager.enableNetwork(id, true);
-	    	//ret = mWifiManager.reconnect();
 	    	if(!ret){
 	    		Log.e(TAG, "connected failed ssId= "+ssId+"; password= "+password+"; id= "+id);
 	    		openWifi(SWITCH_AP);//AP
