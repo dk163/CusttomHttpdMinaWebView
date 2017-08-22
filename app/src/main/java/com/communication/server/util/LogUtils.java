@@ -18,13 +18,14 @@ import java.util.Date;
 
 public final class LogUtils {
 
-	private static final String TAG = "ONLY_YOU";
-	private static final String LOG_SUFFIX = ".txt";
-	private static final String LOG_DIR = "ONLY_YOU";
+	private static final String TAG = "customLog";
+	private static final String LOG_SUFFIX = ".log";
+	private static final String LOG_DIR = "CUSTOM_DEBUG";
 	private static final String LOG_FILENAME = LOG_DIR + LOG_SUFFIX;
 
 	public static boolean debug = true; // Log switch open, development, released when closed(LogCat)
-	public static int level = Log.VERBOSE; // Write file level
+	//public static int level = Log.VERBOSE; // Write file level
+	public static int level = Log.ERROR; // Write file level
 
         public enum DateFormater {
             NORMAL("yyyy-MM-dd HH:mm"),
@@ -371,6 +372,7 @@ public final class LogUtils {
 				write(saveFile, msg, append);
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
 			recordLog(logDir, fileName, msg, append);
 		}
 	}

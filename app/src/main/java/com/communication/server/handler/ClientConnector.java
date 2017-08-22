@@ -1,12 +1,16 @@
 package com.communication.server.handler;
 
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.lang.invoke.MethodHandles;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.nio.Buffer;
 import java.nio.charset.Charset;
@@ -25,14 +29,21 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
+import com.communication.server.data.PuhFile;
 import com.communication.server.filter.ServerMessageCodecFactory;
 import com.communication.server.impl.CommandHandle;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
+import com.communication.server.util.LogUtils;
+import com.google.gson.Gson;
+import com.kang.custom.activity.MyApplication;
 
 public class ClientConnector {
 
@@ -46,11 +57,7 @@ public class ClientConnector {
 	private static ClientAcceptorHandler mAcceptorHandler;
 	private CSession session = null;
 
-	private final int TOAST_SHOW_CONNECT = 0;
-	public final static int TOAST_START_MTKLOG = 1;
-	public final static int TOAST_STOP_MTKLOG = 2;
-	public final static int TOAST_CLEAR_MTKLOG = 3;
-	public final static int TOAST_CLEAR_LOG = 4;
+	private final int MSG_SHOW_CONNECT = 0;
 	
     /**
      * Create the ClientConnector's instance
@@ -67,7 +74,7 @@ public class ClientConnector {
 		connector.setHandler(mClientHandler);
 		connector.setConnectTimeout(5);
 
-		Log.d(TAG, "ClientConnector enter");
+		LogUtils.d(TAG, "ClientConnector enter");
 		mAcceptorHandler = new ClientAcceptorHandler(Looper.getMainLooper());
 		connectServer();
 
@@ -87,10 +94,10 @@ public class ClientConnector {
 		connFuture.addListener(new IoFutureListener<ConnectFuture>() {
 			public void operationComplete(ConnectFuture future) {
 				if (future.isConnected()) {
-					Log.i(TAG, "connectServer connect");
-					mAcceptorHandler.sendEmptyMessage(TOAST_SHOW_CONNECT);
+					LogUtils.i(TAG, "connectServer connect");
+					mAcceptorHandler.sendEmptyMessage(MSG_SHOW_CONNECT);
 				} else {
-					Log.e(TAG, "Not connected...exiting");
+					LogUtils.e(TAG, "Not connected...exiting");
 				}
 			}
 		});
@@ -105,41 +112,53 @@ public class ClientConnector {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			Log.i(TAG, "msg what: " + msg.what);
+			String cmd = "";
+			LogUtils.i(TAG, "msg what: " + msg.what);
 			session = ClientSessionManager.getInstance().getSession(Constant.MINA_PORT);
 			if(session == null){
-				Log.e(TAG, " client session is null");
+				LogUtils.e(TAG, " client session is null");
 				return;
 			}
 			switch (msg.what) {
-				case TOAST_SHOW_CONNECT:
+				case MSG_SHOW_CONNECT:
 					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CONNECT_SERVER).getBytes()));
-						Log.i(TAG, "start connect server");
+						LogUtils.i(TAG, "start connect server");
 					}
 					break;
-				case TOAST_START_MTKLOG:
+				case Constant.MSG_START_MTKLOG:
 					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_START_MTKLOG).getBytes()));
-						Log.i(TAG, "start mtklog");
+						LogUtils.i(TAG, "start mtklog");
 					}
 					break;
-				case TOAST_STOP_MTKLOG:
+				case Constant.MSG_STOP_MTKLOG:
 					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
-						Log.i(TAG, "stop mtklog");
+						LogUtils.i(TAG, "stop mtklog");
 					}
 					break;
-				case TOAST_CLEAR_MTKLOG:
+				case Constant.MSG_CLEAR_MTKLOG:
 					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_MTKLOG).getBytes()));
-						Log.i(TAG, "clear mtklog");
+						LogUtils.i(TAG, "clear mtklog");
 					}
 					break;
-				case TOAST_CLEAR_LOG:
+				case Constant.MSG_CLEAR_LOG:
 					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
-						Log.i(TAG, "clear custom log");
+						LogUtils.i(TAG, "clear custom log");
+					}
+					break;
+				case Constant.MSG_PUSH_FILE:
+					if(null != session){
+						final String fileName =  "CustomLog.apk";
+						File file = new File(getInnerSDCardPath()+File.separator+"CustomLog"+File.separator+fileName);
+						LogUtils.i(TAG, "file path: " + file.getAbsolutePath());
+						cmd = makeJson(6, file.getAbsolutePath(), fileName );//push file msg_id
+						LogUtils.i(TAG, "push file cmd: " + cmd);
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap(cmd.getBytes()));
+						LogUtils.i(TAG, "push file");
 					}
 					break;
 
@@ -149,11 +168,60 @@ public class ClientConnector {
 		}
 	}
 
-	public static Handler getClientAcceptorHander(){
+	public static Handler getClientAcceptorHandler(){
 		if(null != mAcceptorHandler){
 			return mAcceptorHandler;
 		}else{
 			return null;
 		}
+	}
+
+	private String makeJson(int msg_id, String path, String fileName){
+		String ip = getWifiIP();
+		PuhFile pf =  new PuhFile(msg_id, path, ip, fileName);
+
+		final String jsp = (new Gson()).toJson(pf);
+
+		return jsp;
+	}
+
+	/**
+	 * 获取内置SD卡路径
+	 * @return
+	 */
+	private String getInnerSDCardPath() {
+		return Environment.getExternalStorageDirectory().getPath();
+	}
+
+	/**
+	 * 遍历文件夹下的所有文件
+	 */
+	private void RecursionFile(File file){
+		if(file.isFile()){
+			LogUtils.e(TAG, "push file, Recursion dir");
+			return;
+		}
+	}
+
+	/**
+	 * 得到wifi连接的IP地址
+	 * @param
+	 * @return
+	 */
+	private  String getWifiIP(){
+		WifiManager wifiManager = (WifiManager)(CommandHandleClient.getInstance().getContext().getApplicationContext()).getSystemService(Context.WIFI_SERVICE);
+		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+		int ipAddr = wifiInfo.getIpAddress();
+		String ipStr = int2string(ipAddr);
+		return ipStr;
+	}
+
+	/**
+	 * 输入int 得到String类型的ip地址
+	 * @param i
+	 * @return
+	 */
+	private  String int2string(int i){
+		return (i & 0xFF)+ "." + ((i >> 8 ) & 0xFF) + "." + ((i >> 16 ) & 0xFF) +"."+((i >> 24 ) & 0xFF );
 	}
 }

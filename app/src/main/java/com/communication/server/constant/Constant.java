@@ -11,11 +11,20 @@ public class Constant {
 //	public  static String MINA_IP = "127.0.0.1";
 //	public  static String HTTPDIPPORT="http://127.0.0.1:8080";
 
+	//client define  local variable
+	public final static int MSG_START_MTKLOG = 1;
+	public final static int MSG_STOP_MTKLOG = 2;
+	public final static int MSG_CLEAR_MTKLOG = 3;
+	public final static int MSG_CLEAR_LOG = 4;
+	public final static int MSG_PUSH_FILE = 5;
+
+	//client send server cmd
 	public static final String CMD_CONNECT_SERVER = "{\"msg_id\":1}";
 	public static final String CMD_START_MTKLOG = "{\"msg_id\":2}";
 	public static final String CMD_STOP_MTKLOG = "{\"msg_id\":3}";
 	public static final String CMD_CLEAR_MTKLOG = "{\"msg_id\":4}";
-	public static final String CMD_CLEAR_LOG= "{\"msg_id\":5}";
+	public static final String CMD_CLEAR_LOG = "{\"msg_id\":5}";
+	public static final String CMD_PUSH_FILE = "{\"msg_id\":6}";
 
 	public static final String ACTION_MTKLOG = "com.mediatek.mtklogger.ADB_CMD";
 

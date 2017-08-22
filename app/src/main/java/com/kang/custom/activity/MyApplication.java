@@ -1,25 +1,24 @@
 package com.kang.custom.activity;
 
 import android.app.Application;
+import android.content.Context;
 
 /**
  * Created by kang on 2017/7/15.
  */
 
 public class MyApplication extends Application {
-    private static MyApplication myApp;
+    private static Context myApp;
 
     public MyApplication() {
     }
 
     public void onCreate() {
         super.onCreate();
+        myApp =  getContext();
     }
 
-    public MyApplication getInstance(){
-        if(myApp == null){
-            myApp = new MyApplication();
-        }
+    public static Context getContext(){
         return myApp;
     }
 }

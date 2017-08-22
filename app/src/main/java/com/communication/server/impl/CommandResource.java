@@ -8,4 +8,5 @@ public class CommandResource {
 	public static final byte SYS_CMD_STOPMTKLOG = 0x0003;//stop mtklog
 	public static final byte SYS_CMD_CLEARMTKLOG = 0x0004;//clear mtklog
 	public static final byte SYS_CMD_CLEARLOG = 0x0005;//delete NightVison log
+	public static final byte SYS_CMD_PUSHFILE = 0x0006;//push file
 }

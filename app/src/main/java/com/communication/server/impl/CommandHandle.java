@@ -9,16 +9,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Environment;
 import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.communication.server.constant.Constant;
-import com.communication.server.handler.ServerAcceptor;
+import com.communication.server.http.OkHttpClientManager;
 import com.communication.server.httpd.NanoHTTPd;
+import com.communication.server.util.LogUtils;
+import com.communication.server.util.FileUtil;
+import com.communication.server.util.ShellUtils;
 import com.google.gson.Gson;
+import com.squareup.okhttp.Request;
 
 public class CommandHandle {
 	
@@ -82,28 +83,6 @@ public class CommandHandle {
         
 		return timeStamp;
 	}
-	/**
-	 * 递归删除文件和文件夹
-	 * @param file 要删除的根目录
-	 */
-	private void RecursionDeleteFile(File file){
-	    if(file.isFile()){
-	        file.delete();
-	        return;
-	    }
-	    if(file.isDirectory()){
-	        File[] childFile = file.listFiles();
-	        if(childFile == null || childFile.length == 0){
-	            file.delete();
-	            return;
-	        }
-			for(File f : childFile){
-				RecursionDeleteFile(f);
-				Log.d(TAG,"delete files");
-			}
-	    }
-	    file.delete();
-	}
 
 	public void  startHttpd(){
 		try {
@@ -113,25 +92,65 @@ public class CommandHandle {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Log.i(TAG, "start com.communication.server.httpd");
+		LogUtils.i(TAG, "start com.communication.server.httpd");
 	}
 
 	public boolean  clearLog(){
 		final String dir = "NightVision";
 		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
-		Log.i(TAG, "start clearLog del path: " + des);
+		LogUtils.i(TAG, "start clearLog del path: " + des);
 
 		File file = new File(des);//the file to save the path
-		RecursionDeleteFile(file);
+		FileUtil.RecursionDeleteFile(file);
 
 		final String dir2 = "mtklog";
 		final String des2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir2;
-		Log.i(TAG, "start clearLog del path: " + des2);
+		LogUtils.i(TAG, "start clearLog del path: " + des2);
 
 		File file2 = new File(des2);//the file to save the path
-		RecursionDeleteFile(file2);
+		FileUtil.RecursionDeleteFile(file2);
 
-		Log.i(TAG, "clear log success");
+		LogUtils.i(TAG, "clear log success");
+
+		return true;
+	}
+
+	public boolean  pushFile(final String IP, final String path, final String fileName){
+		//http://192.168.42.129:8080/mnt/sdcard/customLog/
+		String url = "http://"+IP.concat(":8080") +File.separator+path;
+		final String des = Environment.getRootDirectory().getAbsolutePath()+ File.separator + "app" +File.separator + fileName.replace(".apk", "");//Environment.getExternalStorageDirectory().getAbsolutePath();
+		final String delName = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + fileName;
+		LogUtils.i(TAG, "url: " + url + ", des: " + des);
+		File file = new File(delName);
+		if(file.exists()){
+			file.delete();
+			LogUtils.d("del last name: " + fileName);
+		}
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				LogUtils.i("ShellUtils start");
+				String[] commands = new String[] { "mount -o rw,remount /system", "cp /mnt/sdcard/test.apk /system/app/" };
+				ShellUtils.CommandResult result = ShellUtils.execCommand(commands, true);
+				LogUtils.i("ShellUtils result: " + result);
+			}
+		}).start();
+
+		OkHttpClientManager.downloadAsyn(url, des, fileName, new OkHttpClientManager.ResultCallback<String>() {
+			@Override
+			public void onResponse(String response) {
+				//文件下载成功，这里回调的reponse为文件的absolutePath
+				LogUtils.d("ok:" + response);
+			}
+
+			@Override
+			public void onError(Request request, Exception e) {
+				// TODO Auto-generated method stub
+
+				LogUtils.d("downloadOta Exception:" + e.toString());
+			}
+		});
 
 		return true;
 	}

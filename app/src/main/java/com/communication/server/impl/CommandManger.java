@@ -4,6 +4,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Handler;
@@ -15,9 +17,11 @@ import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.data.DataBase;
+import com.communication.server.data.PuhFile;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
+import com.communication.server.util.LogUtils;
 import com.google.gson.Gson;
 
 public final class CommandManger {
@@ -48,17 +52,17 @@ public final class CommandManger {
 	
 	public void process(int port, byte[] data) {
 		if (Constant.MINA_PORT != port) {
-			Log.e(TAG, "port is error");
+			LogUtils.e(TAG, "port is error");
 			return;
 		}
 		
 		String sp = new String(data);
 		if ((sp == null) || (sp.length() <= 0)) {
-			Log.e(TAG,"process sp is null return");
+			LogUtils.e(TAG,"process sp is null return");
 			return;
 		}
 
-		Log.d(TAG,"dvr sp:" + sp);
+		LogUtils.d(TAG,"dvr sp:" + sp);
 
 		handlerPackage(sp);
 		
@@ -89,7 +93,7 @@ public final class CommandManger {
         	if (0 != left && left == right) {
         		// 处理整包
         		String fullPackage = mLeftStr.substring(0, index);
-        		Log.d(TAG, "fullPackage:" + fullPackage);
+        		LogUtils.d(TAG, "fullPackage:" + fullPackage);
         		handlerJson(fullPackage);
         		
         		// 剩余包
@@ -108,7 +112,7 @@ public final class CommandManger {
 		DataBase base = mGson.fromJson(str, DataBase.class);
 		CSession session  =  ServerSessionManager.getInstance().getSession(Constant.MINA_PORT);;
 		int id = base.getMsg_id();
-		Log.d(TAG,"id:" + id);
+		LogUtils.d(TAG,"id:" + id);
 		switch (id){
 			case CommandResource.SYS_CMD_STARTHTTPD:
 				CommandHandle.getInstance().startHttpd();
@@ -121,7 +125,7 @@ public final class CommandManger {
 				intent.putExtra("cmd_name", "start");
 				intent.putExtra("cmd_target", 23);
 				CommandHandle.getInstance().getContext().sendBroadcast(intent);
-				Log.i(TAG, "sendBroadcast mtklog start");
+				LogUtils.i(TAG, "sendBroadcast mtklog start");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTMTKLOG);
 
 				session.write(IoBuffer.wrap((Constant.CMD_START_MTKLOG).getBytes()));
@@ -132,7 +136,7 @@ public final class CommandManger {
 				intent.putExtra("cmd_name", "stop");
 				intent.putExtra("cmd_target", 23);
 				CommandHandle.getInstance().getContext().sendBroadcast(intent);
-				Log.i(TAG, "sendBroadcast mtklog stop");
+				LogUtils.i(TAG, "sendBroadcast mtklog stop");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STOPMTKLOG);
 
 				session.write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
@@ -142,20 +146,29 @@ public final class CommandManger {
 				intent.setAction(Constant.ACTION_MTKLOG);
 				intent.putExtra("cmd_name", "clear_all_logs");
 				CommandHandle.getInstance().getContext().sendBroadcast(intent);
-				Log.i(TAG, "sendBroadcast mtklog clear");
+				LogUtils.i(TAG, "sendBroadcast mtklog clear");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARMTKLOG);
 				break;
 			case CommandResource.SYS_CMD_CLEARLOG:
-				Log.i(TAG, "SYS_CMD_CLEARLOG");
+				LogUtils.i(TAG, "SYS_CMD_CLEARLOG");
 				if(CommandHandle.getInstance().clearLog()){
 					mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARLOG);
 				}
 
 				session.write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
 				break;
+			case CommandResource.SYS_CMD_PUSHFILE:
+				LogUtils.i(TAG, "SYS_CMD_PUSHFILE");
+
+                PuhFile pf = mGson.fromJson(str, PuhFile.class);
+                CommandHandle.getInstance().pushFile(pf.getIp(), pf.getPath(), pf.getFileName());
+
+
+                session.write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
+				break;
 
 			default:
-					Log.i(TAG, "handelrJson switch default");
+					LogUtils.i(TAG, "handelrJson switch default");
 					break;
 		}
 	}
@@ -181,20 +194,24 @@ public final class CommandManger {
 			
 			switch(msg.what){
 				case CommandResource.SYS_CMD_STARTMTKLOG:
-					Log.i(TAG,"SYS_CMD_STARTMTKLOG ");
+					LogUtils.i(TAG,"handleMessage sys_cmd_startmtklog ");
 					Toast.makeText(CommandHandle.getInstance().getContext(), "start mtklog success", Toast.LENGTH_SHORT).show();
 					break;
 				case CommandResource.SYS_CMD_STOPMTKLOG:
-					Log.i(TAG,"SYS_CMD_STOPMTKLOG ");
+					LogUtils.i(TAG,"handleMessage sys_cmd_stopmtklog ");
 					Toast.makeText(CommandHandle.getInstance().getContext(), "stop mtklog success", Toast.LENGTH_SHORT).show();
 					break;
 				case CommandResource.SYS_CMD_CLEARMTKLOG:
-					Log.i(TAG,"SYS_CMD_CLEARMTKLOG ");
+					LogUtils.i(TAG,"handleMessage sys_cmd_clearmtklog ");
 					Toast.makeText(CommandHandle.getInstance().getContext(), "clear mtklog success", Toast.LENGTH_SHORT).show();
 					break;
 				case CommandResource.SYS_CMD_CLEARLOG:
-					Log.i(TAG, "SYS_CMD_CLEARLOG");
-					Toast.makeText(CommandHandle.getInstance().getContext(), "clear NightVision log", Toast.LENGTH_SHORT).show();
+					LogUtils.i(TAG, "handleMessage sys_cmd_clearlog");
+					Toast.makeText(CommandHandle.getInstance().getContext(), "clear log sucess", Toast.LENGTH_SHORT).show();
+					break;
+				case CommandResource.SYS_CMD_PUSHFILE:
+					LogUtils.i(TAG, "handleMessage sys_cmd_pushfile");
+					Toast.makeText(CommandHandle.getInstance().getContext(), "push file", Toast.LENGTH_SHORT).show();
 					break;
 
 				default:
