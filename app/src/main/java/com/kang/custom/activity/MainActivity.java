@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity{
     private static String tmp = "";
 
     private static MainHandler mHandler;
-    private static MinaClient mc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,19 +77,17 @@ public class MainActivity extends AppCompatActivity{
 
                 Intent mIntent = new Intent(mContext, MinaClient.class);
                 startService(mIntent);
-                mc = MinaClient.getInstance();
             }
         });
         Button stopClient = (Button)findViewById(R.id.stopClient);
         stopClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mc == null){
+                if(!MinaClient.isClientInstance()){
                     mHandler.sendEmptyMessage(TOAST_ERROR);
                 }else{
                     Intent mIntent = new Intent(mContext, MinaClient.class);
                     stopService(mIntent);
-                    mc.stopClient();
                     mHandler.sendEmptyMessageDelayed(TOAST_STOP_CLIENT, 0);
                 }
             }
@@ -176,12 +173,9 @@ public class MainActivity extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         LogUtils.d(TAG, "MainActivity onDestroy:");
-//        MinaServer.getInstance().stopServer();
-//        if(ClientSessionManager.getInstance().getSession(Constant.MINA_PORT) != null){
-//            ClientSessionManager.getInstance().closeAllSession();
-//
-//        }
-        if(mc != null )mc.stopClient();
+
+        Intent mIntent = new Intent(mContext, MinaClient.class);
+        stopService(mIntent);
 
         if(na != null) na.stop();
     }

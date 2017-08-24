@@ -43,7 +43,6 @@ import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
 import com.communication.server.util.LogUtils;
 import com.google.gson.Gson;
-import com.kang.custom.activity.MyApplication;
 
 public class ClientConnector {
 
@@ -74,7 +73,10 @@ public class ClientConnector {
 		connector.setHandler(mClientHandler);
 		connector.setConnectTimeout(5);
 
-		LogUtils.d(TAG, "ClientConnector enter");
+		LogUtils.i(TAG, "connector.getSessionConfig() getReceiveBufferSize: "+ connector.getSessionConfig().getReceiveBufferSize());
+		LogUtils.i(TAG, "connector.getSessionConfig() getSendBufferSize: "+ connector.getSessionConfig().getSendBufferSize());
+		LogUtils.i(TAG, "connector.getSessionConfig() getSendBufferSize: "+ connector.getSessionConfig().getReadBufferSize());
+		LogUtils.i(TAG, "ClientConnector enter");
 		mAcceptorHandler = new ClientAcceptorHandler(Looper.getMainLooper());
 		connectServer();
 

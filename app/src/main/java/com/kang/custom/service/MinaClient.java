@@ -23,9 +23,10 @@ public class MinaClient extends Service implements Runnable {
     private final String TAG = MinaClient.class.getSimpleName();
     private volatile static MinaClient instance;
     private static ClientConnector client;
+    private static volatile boolean isInstance = false;
 
     public MinaClient(){
-//        instance = new MinaClient();
+
     }
 
     public static MinaClient getInstance() {
@@ -42,6 +43,7 @@ public class MinaClient extends Service implements Runnable {
     public void onCreate() {
         // TODO Auto-generated method stub
         Log.i(TAG, "MinaClient create");
+        isInstance = true;
 
         Thread thread = new Thread(this);
         thread.start();
@@ -61,7 +63,9 @@ public class MinaClient extends Service implements Runnable {
         //client.connector.dispose(false);
     }
 
-    public void stopClient(){
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         if(client == null){
             Log.e(TAG, "stopClient client = null");
             return;
@@ -71,6 +75,11 @@ public class MinaClient extends Service implements Runnable {
             session.close(true);
         }
         client = null;
+        isInstance = false;
         Log.i(TAG, "stopClient");
+    }
+
+    public static boolean isClientInstance() {
+        return isInstance;
     }
 }
