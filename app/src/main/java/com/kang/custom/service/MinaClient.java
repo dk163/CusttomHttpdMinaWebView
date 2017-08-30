@@ -2,8 +2,12 @@ package com.kang.custom.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.communication.server.clientImpl.CommandHandleClient;
@@ -12,11 +16,14 @@ import com.communication.server.handler.ClientConnector;
 import com.communication.server.impl.CommandHandle;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
+import com.communication.server.util.LogUtils;
+import com.kang.custom.application.MyApplication;
+import com.kang.custom.receiver.NetworkConnectChangedReceiver;
 
 import org.apache.mina.core.session.IoSession;
 
 /**
- * Created by rd0551 on 2017/7/12.
+ * Created by kang on 2017/7/12.
  */
 
 public class MinaClient extends Service implements Runnable {
@@ -24,6 +31,7 @@ public class MinaClient extends Service implements Runnable {
     private volatile static MinaClient instance;
     private static ClientConnector client;
     private static volatile boolean isInstance = false;
+    private NetworkConnectChangedReceiver networkConnectChangedReceiver;
 
     public MinaClient(){
 
@@ -42,9 +50,12 @@ public class MinaClient extends Service implements Runnable {
 
     public void onCreate() {
         // TODO Auto-generated method stub
-        Log.i(TAG, "MinaClient create");
-        isInstance = true;
+        LogUtils.i(TAG, "MinaClient create");
 
+        networkConnectChangedReceiver = new NetworkConnectChangedReceiver();
+        registerBroadcastReceiver();
+
+        isInstance = true;
         Thread thread = new Thread(this);
         thread.start();
 
@@ -65,21 +76,33 @@ public class MinaClient extends Service implements Runnable {
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(networkConnectChangedReceiver);
         super.onDestroy();
-        if(client == null){
-            Log.e(TAG, "stopClient client = null");
-            return;
-        }
+
         CSession session = ClientSessionManager.getInstance().getSession(Constant.MINA_PORT);
-        if( session != null){
+        if(null != session){
             session.close(true);
         }
         client = null;
-        isInstance = false;
-        Log.i(TAG, "stopClient");
+        setIsClientInstance(false);
+        LogUtils.i(TAG, "stopClient end");
     }
 
     public static boolean isClientInstance() {
         return isInstance;
+    }
+
+    public static void setIsClientInstance(boolean isInit) {
+        isInstance = isInit;
+    }
+
+    private void registerBroadcastReceiver() {
+        LogUtils.i(TAG, "register receiver");
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkConnectChangedReceiver, filter);
     }
 }

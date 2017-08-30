@@ -18,8 +18,6 @@ import java.io.IOException;
 import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
 import com.communication.server.httpd.NanoHTTPd;
-import com.communication.server.session.CSession;
-import com.communication.server.session.ClientSessionManager;
 import com.communication.server.util.LogUtils;
 import com.kang.custom.service.MinaClient;
 import com.kang.custom.util.PermissionUtil;
@@ -27,13 +25,15 @@ import com.kang.customhttpdmina.R;
 
 
 public class MainActivity extends AppCompatActivity{
-    private final String TAG = "MainActivity";
+    private final String TAG = "customLog";
 
     private final int TOAST_START_HTTPD = 0;
     private final int TOAST_STOP_HTTPD = 1;
     private final int TOAST_ERROR = 2;
     private final int TOAST_STOP_CLIENT = 3;
     private final int TOAST_START_HTTPD_CLIENT = 4;
+    private final static int STOP_CLIENT = 5;
+    private final int START_CLIENT_ALREADY = 6;
 
     private static NanoHTTPd na;
     private Context mContext;
@@ -64,11 +64,11 @@ public class MainActivity extends AppCompatActivity{
         startClient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CSession cs = ClientSessionManager.getInstance().getSession(Constant.MINA_PORT);
-                if((cs != null) && cs.isConnected()){
-                    LogUtils.i(TAG, "already session Connected");
-                    cs.close(true);
+                if(MinaClient.isClientInstance()){
+                    mHandler.sendEmptyMessage(START_CLIENT_ALREADY);
+                    return;
                 }
+
                 EditText edConIp = (EditText)findViewById(R.id.edConIp);
                 tmp = edConIp.getText().toString();
                 if(!(tmp.isEmpty()) && ((tmp.length()) != 0)){
@@ -179,16 +179,21 @@ public class MainActivity extends AppCompatActivity{
 
         if(na != null) na.stop();
     }
-	 private class MainHandler extends Handler{
 
-         public MainHandler(Looper looper) {
-             super(looper);
-         }
+    public static void stopClient(){
+        mHandler.sendEmptyMessage(STOP_CLIENT);//broadcast stop mina client
+    }
 
-         @Override
+    private class MainHandler extends Handler {
+
+        public MainHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case TOAST_START_HTTPD:
                     Toast.makeText(getApplicationContext(), "start httpd success", Toast.LENGTH_SHORT).show();
                     break;
@@ -203,6 +208,14 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case TOAST_START_HTTPD_CLIENT:
                     Toast.makeText(getApplicationContext(), "client start httpd success", Toast.LENGTH_SHORT).show();
+                    break;
+                case STOP_CLIENT:
+                    Intent mIntent = new Intent(mContext, MinaClient.class);
+                    stopService(mIntent);
+                    Toast.makeText(getApplicationContext(), "wifi disConnect", Toast.LENGTH_SHORT).show();
+                    break;
+                case START_CLIENT_ALREADY:
+                    Toast.makeText(getApplicationContext(), "client session already connect", Toast.LENGTH_SHORT).show();
                     break;
 
                 default:

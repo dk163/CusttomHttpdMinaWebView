@@ -7,7 +7,7 @@ import java.io.DataOutputStream;
 import java.util.List;
 
 /**
- * Created by rd0551 on 2017/8/21.
+ * Created by kang on 2017/8/21.
  */
 
 /**
@@ -160,10 +160,10 @@ public class ShellUtils {
                 errorResult = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 String s;
                 while ((s = successResult.readLine()) != null) {
-                    successMsg.append(s);
+                    successMsg.append(s + COMMAND_LINE_END);
                 }
                 while ((s = errorResult.readLine()) != null) {
-                    errorMsg.append(s);
+                    errorMsg.append(s + COMMAND_LINE_END);
                 }
             }
         } catch (IOException e) {
@@ -207,7 +207,7 @@ public class ShellUtils {
     public static class CommandResult {
 
         /** result of command **/
-        public int    result;
+        public int    result;//0 success
         /** success message of command result **/
         public String successMsg;
         /** error message of command result **/

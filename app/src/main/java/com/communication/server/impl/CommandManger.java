@@ -27,7 +27,7 @@ import com.google.gson.Gson;
 public final class CommandManger {
 	private volatile static CommandManger instance;
 	
-	public static String TAG = "CommandManger";
+	public static String TAG = "customLog";
 	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();	
 	public Gson mGson = new Gson();
 	private CommandManagerHander mHander;
@@ -125,6 +125,12 @@ public final class CommandManger {
 				intent.putExtra("cmd_name", "start");
 				intent.putExtra("cmd_target", 23);
 				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+
+				intent.setAction(Constant.ACTION_MTKLOG);
+				intent.putExtra("cmd_name", "set_auto_start_1");
+				intent.putExtra("cmd_target", 23);
+				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+
 				LogUtils.i(TAG, "sendBroadcast mtklog start");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTMTKLOG);
 
@@ -164,7 +170,7 @@ public final class CommandManger {
                 CommandHandle.getInstance().pushFile(pf.getIp(), pf.getPath(), pf.getFileName());
 
 
-                session.write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
+                session.write(IoBuffer.wrap((Constant.CMD_PUSH_FILE).getBytes()));
 				break;
 
 			default:

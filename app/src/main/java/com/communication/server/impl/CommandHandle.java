@@ -24,16 +24,14 @@ import com.squareup.okhttp.Request;
 public class CommandHandle {
 	
 	private volatile static CommandHandle instance;
-	public static String TAG = "CommandHandle";
+	public static String TAG = "customLog";
 	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();	
 	public Gson mGson = new Gson();
 
 	private static Context mContext;
 	private NanoHTTPd na;
-	
-	private static Handler mHandler = new Handler();
 
-	
+
 	private CommandHandle() {
 	}
 	
@@ -115,40 +113,57 @@ public class CommandHandle {
 		return true;
 	}
 
-	public boolean  pushFile(final String IP, final String path, final String fileName){
+	public boolean pushFile(final String IP, final String path, final String fileName){
 		//http://192.168.42.129:8080/mnt/sdcard/customLog/
 		String url = "http://"+IP.concat(":8080") +File.separator+path;
-		final String des = Environment.getRootDirectory().getAbsolutePath()+ File.separator + "app" +File.separator + fileName.replace(".apk", "");//Environment.getExternalStorageDirectory().getAbsolutePath();
+		final String des = Environment.getExternalStorageDirectory().getAbsolutePath();
 		final String delName = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + fileName;
-		LogUtils.i(TAG, "url: " + url + ", des: " + des);
+		LogUtils.i(TAG, "url: " + url);
 		File file = new File(delName);
 		if(file.exists()){
 			file.delete();
 			LogUtils.d("del last name: " + fileName);
 		}
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				LogUtils.i("ShellUtils start");
-				String[] commands = new String[] { "mount -o rw,remount /system", "cp /mnt/sdcard/test.apk /system/app/" };
-				ShellUtils.CommandResult result = ShellUtils.execCommand(commands, true);
-				LogUtils.i("ShellUtils result: " + result);
-			}
-		}).start();
+        String cp = FileUtil.RecursionFindFile(new File("/system/app/"), fileName.replace(".apk", ""));
+        if(null == cp){
+            cp = FileUtil.RecursionFindFile(new File("/system/priv-app/"), fileName.replace(".apk", ""));
+            if(null == cp){
+                LogUtils.e("push dir is not find");
+                return false;
+            }
+        }
+
+        final String cpCMD = ("cp -rf /mnt/sdcard/CustomLog.apk ").concat(cp);
+        LogUtils.i("cp : " + cp + ", cpCMD: " + cpCMD);
 
 		OkHttpClientManager.downloadAsyn(url, des, fileName, new OkHttpClientManager.ResultCallback<String>() {
 			@Override
 			public void onResponse(String response) {
 				//文件下载成功，这里回调的reponse为文件的absolutePath
-				LogUtils.d("ok:" + response);
+				LogUtils.i("downloadAsyn ok, path:  " + response);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtils.i("ShellUtils start");
+				        String[] commands = new String[] {"mount -o rw,remount /system", cpCMD};
+                        boolean ret =ShellUtils.checkRootPermission();//true is root
+                        LogUtils.i("ShellUtils checkRootPermission ret1: " + ret);
+                        if(ret){
+                            ShellUtils.CommandResult result = ShellUtils.execCommand(commands, true);//do su,true
+                            LogUtils.i("ShellUtils result: " + result.result);
+                            LogUtils.i("ShellUtils result: " + result.errorMsg);
+                            LogUtils.i("ShellUtils result: " + result.successMsg);
+                        }
+                    }
+                }).start();
 			}
 
 			@Override
 			public void onError(Request request, Exception e) {
 				// TODO Auto-generated method stub
-
-				LogUtils.d("downloadOta Exception:" + e.toString());
+				LogUtils.e("downloadAsyn Exception:" + e.toString());
 			}
 		});
 

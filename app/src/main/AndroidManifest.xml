@@ -15,6 +15,8 @@
     <permission android:name="android.permission.DUMP" />
     <permission android:name="com.permission.MTKLOGGER" />
 
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER"/>
+
     <application
         android:name="com.kang.custom.application.MyApplication"
         android:allowBackup="true"

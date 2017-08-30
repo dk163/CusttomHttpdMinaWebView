@@ -14,7 +14,7 @@ import com.kang.custom.service.MinaServer;
 
 
 /**
- * Created by rd0551 on 2017/7/11.
+ * Created by kang on 2017/7/11.
  */
 
 public class HttpdReceiver extends BroadcastReceiver {

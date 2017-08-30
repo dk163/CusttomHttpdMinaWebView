@@ -5,7 +5,7 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 
 /**
- * Created by rd0551 on 2017/8/18.
+ * Created by kang on 2017/8/18.
  */
 
 public class PermissionUtil {

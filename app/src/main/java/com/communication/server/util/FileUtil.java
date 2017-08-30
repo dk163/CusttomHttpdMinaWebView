@@ -3,7 +3,7 @@ package com.communication.server.util;
 import java.io.File;
 
 /**
- * Created by rd0551 on 2017/8/18.
+ * Created by kang on 2017/8/18.
  */
 
 public class FileUtil {
@@ -28,5 +28,30 @@ public class FileUtil {
             }
         }
         file.delete();
+    }
+
+    /**
+     * find file
+     * @param file
+     * @param name
+     * @return
+     */
+    public static String RecursionFindFile(File file, final String name ){
+        if(file.isFile()){
+            return null;
+        }
+        if(file.isDirectory()){
+            File[] childFile = file.listFiles();
+            if(childFile == null || childFile.length == 0){
+                return null;
+            }
+            for(File f : childFile){
+                if((f.isDirectory()) && (f.getName().equals(name))){
+                    LogUtils.i("RecursionFindFile dir path: ", f.getAbsolutePath());
+                    return f.getAbsolutePath();
+                }
+            }
+        }
+        return null;
     }
 }
