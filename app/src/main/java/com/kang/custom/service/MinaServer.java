@@ -10,7 +10,7 @@ import com.communication.server.handler.ServerAcceptor;
 import com.communication.server.impl.CommandHandle;
 
 /**
- * Created by rd0551 on 2017/7/12.
+ * Created by kang on 2017/7/12.
  */
 
 public class MinaServer extends Service implements Runnable{
