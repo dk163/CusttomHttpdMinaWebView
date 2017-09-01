@@ -78,7 +78,7 @@ public class StringUtil {
 	/**
      *  covert int to 2 length byte 
      * 
-     * @param s int
+     * @param res int
      * @return byte[]
      * */
 	public static byte[] intTo2byte(int res) {

@@ -140,6 +140,12 @@ public class ClientConnector {
 						LogUtils.i(TAG, "stop mtklog");
 					}
 					break;
+				case Constant.MSG_ZIP_MTKLOG:
+					if(null != session){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_ZIP_MTKLOG).getBytes()));
+						LogUtils.i(TAG, "zip  mtklog");
+					}
+					break;
 				case Constant.MSG_CLEAR_MTKLOG:
 					if(null != session){
 						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_CLEAR_MTKLOG).getBytes()));

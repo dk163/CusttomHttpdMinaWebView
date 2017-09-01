@@ -1,6 +1,7 @@
 package com.communication.server.clientImpl;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -8,9 +9,15 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
+import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
+import com.communication.server.impl.CommandHandle;
 import com.communication.server.impl.CommandResource;
+import com.communication.server.util.LogUtils;
 import com.google.gson.Gson;
+import com.kang.custom.activity.MainActivity;
+import com.kang.custom.application.MyApplication;
+import com.kang.custom.util.AppInfo;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -103,9 +110,21 @@ public final class CommandMangerClient {
 		int id = base.getMsg_id();
 		Log.d(TAG,"id:" + id);
 		switch (id){
+            case CommandResource.ERR_FAIL:
+                mHander.sendEmptyMessage(CommandResource.ERR_FAIL);
+                break;
 			case CommandResource.SYS_CMD_STARTHTTPD:
 				Log.i(TAG, "SYS_CMD_STARTHTTPD receive");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTHTTPD);
+
+				AppData appData = mGson.fromJson(str,
+						AppData.class);
+				Message msg = new Message();
+				msg.what = MainActivity.APP_VERSION;
+				Bundle data = new Bundle();
+				data.putString("version", appData.getVersion());
+				msg.setData(data);
+				MainActivity.getmHandler().sendMessage(msg);
 				break;
 			case CommandResource.SYS_CMD_STARTMTKLOG:
 				Log.i(TAG, "SYS_CMD_STARTMTKLOG receive");
@@ -121,8 +140,15 @@ public final class CommandMangerClient {
 				break;
 			case CommandResource.SYS_CMD_CLEARLOG:
 				Log.i(TAG, "SYS_CMD_CLEARLOG receive");
-				mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_CLEARLOG, 5*1000);
+				mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_CLEARLOG, 4*1000);
 				break;
+			case CommandResource.SYS_CMD_PUSHFILE:
+				Log.i(TAG, "SYS_CMD_CLEARLOG receive");
+				mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_PUSHFILE, 1*1000);
+				break;
+            case CommandResource.SYS_CMD_ZIPMTKLOG:
+                mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPMTKLOG, 1*1000);
+                break;
 
 			default:
 					Log.i(TAG, "handelrJson switch default");
@@ -141,6 +167,10 @@ public final class CommandMangerClient {
 			super.handleMessage(msg);
 			
 			switch(msg.what){
+                case CommandResource.ERR_FAIL:
+                    LogUtils.i(TAG, "CommandResource.ERR_FAIL");
+                    Toast.makeText(CommandHandleClient.getInstance().getContext(), "server happen error", Toast.LENGTH_SHORT).show();
+                    break;
 				case CommandResource.SYS_CMD_STARTHTTPD:
 					Log.i(TAG,"SYS_CMD_STARTHTTPD ");
 					Toast.makeText(CommandHandleClient.getInstance().getContext(), "start httpd and connect success", Toast.LENGTH_SHORT).show();
@@ -159,8 +189,16 @@ public final class CommandMangerClient {
 					break;
 				case CommandResource.SYS_CMD_CLEARLOG:
 					Log.i(TAG, "SYS_CMD_CLEARLOG");
-					Toast.makeText(CommandHandleClient.getInstance().getContext(), "clear custom log", Toast.LENGTH_SHORT).show();
+					Toast.makeText(CommandHandleClient.getInstance().getContext(), "clear custom log success", Toast.LENGTH_SHORT).show();
 					break;
+                case CommandResource.SYS_CMD_PUSHFILE:
+                    Log.i(TAG, "SYS_CMD_PUSHFILE");
+                    Toast.makeText(CommandHandleClient.getInstance().getContext(), "push file sucess,reboot device please", Toast.LENGTH_SHORT).show();
+                    break;
+                case CommandResource.SYS_CMD_ZIPMTKLOG:
+                    Log.i(TAG, "SYS_CMD_ZIPMTKLOG");
+                    Toast.makeText(CommandHandleClient.getInstance().getContext(), "zip mtklog success", Toast.LENGTH_SHORT).show();
+                    break;
 
 				default:
 					break;

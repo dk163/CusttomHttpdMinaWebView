@@ -15,11 +15,14 @@ import android.os.Handler;
 import com.communication.server.constant.Constant;
 import com.communication.server.http.OkHttpClientManager;
 import com.communication.server.httpd.NanoHTTPd;
+import com.communication.server.session.ServerSessionManager;
 import com.communication.server.util.LogUtils;
 import com.communication.server.util.FileUtil;
 import com.communication.server.util.ShellUtils;
 import com.google.gson.Gson;
 import com.squareup.okhttp.Request;
+
+import org.apache.mina.core.buffer.IoBuffer;
 
 public class CommandHandle {
 	
@@ -101,20 +104,35 @@ public class CommandHandle {
 		File file = new File(des);//the file to save the path
 		FileUtil.RecursionDeleteFile(file);
 
+        String mtkZipPath = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog.zip");
+        File mtkLogZip = new File(mtkZipPath);
+        if(mtkLogZip.exists()){
+            LogUtils.i("delete mtklog zip file");
+            mtkLogZip.delete();
+        }
+
 		final String dir2 = "mtklog";
 		final String des2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir2;
 		LogUtils.i(TAG, "start clearLog del path: " + des2);
 
 		File file2 = new File(des2);//the file to save the path
-		FileUtil.RecursionDeleteFile(file2);
+		if(FileUtil.RecursionDeleteFile(file2)){
+            LogUtils.i(TAG," delete mtklog dir");
+            LogUtils.i(TAG, "clear log success");
+            return true;
+        }
 
-		LogUtils.i(TAG, "clear log success");
-
-		return true;
+		return false;
 	}
 
+	/**
+	 * httpd server download url http://192.168.42.129:8080/mnt/sdcard/customLog/
+	 * @param IP
+	 * @param path
+	 * @param fileName
+	 * @return
+	 */
 	public boolean pushFile(final String IP, final String path, final String fileName){
-		//http://192.168.42.129:8080/mnt/sdcard/customLog/
 		String url = "http://"+IP.concat(":8080") +File.separator+path;
 		final String des = Environment.getExternalStorageDirectory().getAbsolutePath();
 		final String delName = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + fileName;
@@ -147,7 +165,7 @@ public class CommandHandle {
                     @Override
                     public void run() {
                         LogUtils.i("ShellUtils start");
-				        String[] commands = new String[] {"mount -o rw,remount /system", cpCMD};
+				        String[] commands = new String[] {"mount -o remount /system", cpCMD};
                         boolean ret =ShellUtils.checkRootPermission();//true is root
                         LogUtils.i("ShellUtils checkRootPermission ret: " + ret);
                         if(ret){
@@ -155,7 +173,10 @@ public class CommandHandle {
                             LogUtils.i("ShellUtils result: " + result.result);
                             LogUtils.i("ShellUtils result: " + result.errorMsg);
                             LogUtils.i("ShellUtils result: " + result.successMsg);
-                        }
+							ServerSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_PUSH_FILE).getBytes()));
+						}else{
+							ServerSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_ERROR).getBytes()));
+						}
                     }
                 }).start();
 			}
@@ -164,6 +185,7 @@ public class CommandHandle {
 			public void onError(Request request, Exception e) {
 				// TODO Auto-generated method stub
 				LogUtils.e("downloadAsyn Exception:" + e.toString());
+				ServerSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap((Constant.CMD_ERROR).getBytes()));
 			}
 		});
 

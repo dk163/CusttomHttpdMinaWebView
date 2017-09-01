@@ -3,25 +3,27 @@ package com.kang.custom.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
 import com.communication.server.httpd.NanoHTTPd;
 import com.communication.server.util.LogUtils;
 import com.kang.custom.service.MinaClient;
+import com.kang.custom.util.AppInfo;
 import com.kang.custom.util.PermissionUtil;
 import com.kang.customhttpdmina.R;
+
+import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity{
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity{
     private final int TOAST_START_HTTPD_CLIENT = 4;
     private final static int STOP_CLIENT = 5;
     private final int START_CLIENT_ALREADY = 6;
+    public final static int APP_VERSION = 7;
 
     private static NanoHTTPd na;
     private Context mContext;
@@ -50,6 +53,9 @@ public class MainActivity extends AppCompatActivity{
 
         PermissionUtil.verifyStoragePermissions(this);
 
+        LogUtils.i("app name: " +AppInfo.getPackageName(this));
+        LogUtils.i("app version: "+AppInfo.getVersionCode(this));
+
         if(na == null) {
             try {
                 na = new NanoHTTPd(Constant.HTTPD_PORT);
@@ -58,7 +64,6 @@ public class MainActivity extends AppCompatActivity{
             }
             mHandler.sendEmptyMessage(TOAST_START_HTTPD_CLIENT);
         }
-
 
         Button startClient = (Button)findViewById(R.id.startClient);
         startClient.setOnClickListener(new View.OnClickListener() {
@@ -141,6 +146,19 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        Button zipMtkLog = (Button) findViewById(R.id.zipMtkLog);
+        zipMtkLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_MTKLOG);
+                LogUtils.i(TAG, "zip mtklog");
+            }
+        });
+
         Button clearCustomLog = (Button)findViewById(R.id.clearCustomLog);
         clearCustomLog.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,11 +198,21 @@ public class MainActivity extends AppCompatActivity{
         if(na != null) na.stop();
     }
 
+    public static MainHandler getmHandler() {
+        return mHandler;
+    }
+
     public static void stopClient(){
         mHandler.sendEmptyMessage(STOP_CLIENT);//broadcast stop mina client
     }
 
-    private class MainHandler extends Handler {
+    private void setVesrion(String ver){
+        TextView version = (TextView) findViewById(R.id.version);
+        version.setText("Ver: "+ ver);
+        LogUtils.i(TAG,"app version: " + ver);
+    }
+
+    public class MainHandler extends Handler {
 
         public MainHandler(Looper looper) {
             super(looper);
@@ -216,6 +244,11 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case START_CLIENT_ALREADY:
                     Toast.makeText(getApplicationContext(), "client session already connect", Toast.LENGTH_SHORT).show();
+                    break;
+                case APP_VERSION:
+                    Bundle data = msg.getData();
+                    String version = data.getString("version");
+                    setVesrion(version);
                     break;
 
                 default:

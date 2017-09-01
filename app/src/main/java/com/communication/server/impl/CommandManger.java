@@ -1,5 +1,6 @@
 package com.communication.server.impl;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
@@ -8,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -16,13 +18,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
+import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
 import com.communication.server.data.PuhFile;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
+import com.communication.server.util.FileUtil;
 import com.communication.server.util.LogUtils;
 import com.google.gson.Gson;
+import com.kang.custom.util.AppInfo;
 
 public final class CommandManger {
 	private volatile static CommandManger instance;
@@ -31,9 +36,10 @@ public final class CommandManger {
 	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();	
 	public Gson mGson = new Gson();
 	private CommandManagerHander mHander;
-	private Intent intent;
+	private Intent mIntent;
 
 	private String mLeftStr = "";
+    private String json = "";
 
 	private CommandManger() {
 		mHander = new CommandManagerHander(CommandHandle.getInstance().getContext().getMainLooper());
@@ -110,26 +116,29 @@ public final class CommandManger {
 
 	private void handlerJson(String str) {
 		DataBase base = mGson.fromJson(str, DataBase.class);
-		CSession session  =  ServerSessionManager.getInstance().getSession(Constant.MINA_PORT);;
+		CSession session  =  ServerSessionManager.getInstance().getSession(Constant.MINA_PORT);
 		int id = base.getMsg_id();
 		LogUtils.d(TAG,"id:" + id);
 		switch (id){
 			case CommandResource.SYS_CMD_STARTHTTPD:
 				CommandHandle.getInstance().startHttpd();
 
-				session.write(IoBuffer.wrap((Constant.CMD_CONNECT_SERVER).getBytes()));
+                AppData appData = new AppData(1, AppInfo.getVersionCode(CommandHandle.getInstance().getContext()));
+                json = (new Gson()).toJson(appData);
+				session.write(IoBuffer.wrap((json).getBytes()));
 				break;
 			case  CommandResource.SYS_CMD_STARTMTKLOG:
-				intent = new Intent();//start mtklog, com.mediatek.mtklogger.ADB_CMD -e cmd_name start/stop --ei cmd_target 23
-				intent.setAction(Constant.ACTION_MTKLOG);
-				intent.putExtra("cmd_name", "start");
-				intent.putExtra("cmd_target", 23);
-				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+                mIntent = new Intent();//start mtklog, com.mediatek.mtklogger.ADB_CMD -e cmd_name start/stop --ei cmd_target 23
 
-				intent.setAction(Constant.ACTION_MTKLOG);
-				intent.putExtra("cmd_name", "set_auto_start_1");
-				intent.putExtra("cmd_target", 23);
-				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+                mIntent.setAction(Constant.ACTION_MTKLOG);
+                mIntent.putExtra("cmd_name", "set_auto_start_1");
+                mIntent.putExtra("cmd_target", 23);
+                CommandHandle.getInstance().getContext().sendBroadcast(mIntent);
+
+                mIntent.setAction(Constant.ACTION_MTKLOG);
+                mIntent.putExtra("cmd_name", "start");
+                mIntent.putExtra("cmd_target", 23);
+				CommandHandle.getInstance().getContext().sendBroadcast(mIntent);
 
 				LogUtils.i(TAG, "sendBroadcast mtklog start");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTMTKLOG);
@@ -137,21 +146,27 @@ public final class CommandManger {
 				session.write(IoBuffer.wrap((Constant.CMD_START_MTKLOG).getBytes()));
 				break;
 			case CommandResource.SYS_CMD_STOPMTKLOG:
-				intent = new Intent();//stop mtklog
-				intent.setAction(Constant.ACTION_MTKLOG);
-				intent.putExtra("cmd_name", "stop");
-				intent.putExtra("cmd_target", 23);
-				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+                mIntent = new Intent();//stop mtklog
+
+                mIntent.setAction(Constant.ACTION_MTKLOG);
+                mIntent.putExtra("cmd_name", "set_auto_start_0");
+                mIntent.putExtra("cmd_target", 23);
+                CommandHandle.getInstance().getContext().sendBroadcast(mIntent);
+
+                mIntent.setAction(Constant.ACTION_MTKLOG);
+                mIntent.putExtra("cmd_name", "stop");
+                mIntent.putExtra("cmd_target", 23);
+				CommandHandle.getInstance().getContext().sendBroadcast(mIntent);
 				LogUtils.i(TAG, "sendBroadcast mtklog stop");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STOPMTKLOG);
 
-				session.write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
+                session.write(IoBuffer.wrap((Constant.CMD_STOP_MTKLOG).getBytes()));
 				break;
 			case CommandResource.SYS_CMD_CLEARMTKLOG:
-				intent = new Intent();//stop mtklog
-				intent.setAction(Constant.ACTION_MTKLOG);
-				intent.putExtra("cmd_name", "clear_all_logs");
-				CommandHandle.getInstance().getContext().sendBroadcast(intent);
+                mIntent = new Intent();//stop mtklog
+                mIntent.setAction(Constant.ACTION_MTKLOG);
+                mIntent.putExtra("cmd_name", "clear_all_logs");
+				CommandHandle.getInstance().getContext().sendBroadcast(mIntent);
 				LogUtils.i(TAG, "sendBroadcast mtklog clear");
 				mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARMTKLOG);
 				break;
@@ -159,9 +174,12 @@ public final class CommandManger {
 				LogUtils.i(TAG, "SYS_CMD_CLEARLOG");
 				if(CommandHandle.getInstance().clearLog()){
 					mHander.sendEmptyMessage(CommandResource.SYS_CMD_CLEARLOG);
-				}
+                    session.write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
+				}else{
+                    LogUtils.i(TAG, "");
+                    session.write(IoBuffer.wrap((Constant.CMD_ERROR).getBytes()));
+                }
 
-				session.write(IoBuffer.wrap((Constant.CMD_CLEAR_LOG).getBytes()));
 				break;
 			case CommandResource.SYS_CMD_PUSHFILE:
 				LogUtils.i(TAG, "SYS_CMD_PUSHFILE");
@@ -169,9 +187,26 @@ public final class CommandManger {
                 PuhFile pf = mGson.fromJson(str, PuhFile.class);
                 CommandHandle.getInstance().pushFile(pf.getIp(), pf.getPath(), pf.getFileName());
 
-
                 session.write(IoBuffer.wrap((Constant.CMD_PUSH_FILE).getBytes()));
 				break;
+            case CommandResource.SYS_CMD_ZIPMTKLOG:
+                LogUtils.i(TAG, "SYS_CMD_ZIPMTKLOG");
+
+                String src = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog");
+                String des = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog.zip");
+
+                File file = new File(des);
+                if(file.exists()){
+                    file.delete();
+                    LogUtils.d("del mtklog.zip: " + des);
+                }
+
+                if(FileUtil.zipMultiFile(src, des, true)){
+                    session.write(IoBuffer.wrap((Constant.CMD_ZIP_MTKLOG).getBytes()));
+                }else{
+                    session.write(IoBuffer.wrap((Constant.CMD_ERROR).getBytes()));
+                }
+                break;
 
 			default:
 					LogUtils.i(TAG, "handelrJson switch default");
