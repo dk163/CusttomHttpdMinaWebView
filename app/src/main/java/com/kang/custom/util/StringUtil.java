@@ -1,4 +1,4 @@
-package com.communication.server.util;
+package com.kang.custom.util;
 
 import org.apache.mina.core.buffer.IoBuffer;
 

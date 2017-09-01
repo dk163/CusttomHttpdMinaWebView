@@ -18,7 +18,7 @@ import java.io.IOException;
 import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
 import com.communication.server.httpd.NanoHTTPd;
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.LogUtils;
 import com.kang.custom.service.MinaClient;
 import com.kang.custom.util.PermissionUtil;
 import com.kang.customhttpdmina.R;

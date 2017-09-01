@@ -10,14 +10,13 @@ import java.util.Date;
 
 import android.content.Context;
 import android.os.Environment;
-import android.os.Handler;
 
 import com.communication.server.constant.Constant;
 import com.communication.server.http.OkHttpClientManager;
 import com.communication.server.httpd.NanoHTTPd;
-import com.communication.server.util.LogUtils;
-import com.communication.server.util.FileUtil;
-import com.communication.server.util.ShellUtils;
+import com.kang.custom.util.LogUtils;
+import com.kang.custom.util.FileUtil;
+import com.kang.custom.util.ShellUtils;
 import com.google.gson.Gson;
 import com.squareup.okhttp.Request;
 

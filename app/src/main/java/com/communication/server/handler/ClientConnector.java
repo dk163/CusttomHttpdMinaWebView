@@ -7,41 +7,25 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.nio.Buffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
 import com.communication.server.data.PuhFile;
 import com.communication.server.filter.ServerMessageCodecFactory;
-import com.communication.server.impl.CommandHandle;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
-import com.communication.server.session.ServerSessionManager;
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.LogUtils;
 import com.google.gson.Gson;
 
 public class ClientConnector {

@@ -1,4 +1,4 @@
-package com.communication.server.util;
+package com.kang.custom.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
