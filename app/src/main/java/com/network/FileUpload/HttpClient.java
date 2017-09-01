@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.LogUtils;
 import com.network.exception.ErrorCode;
 import com.network.exception.NetworkException;
 import com.network.exception.ServerInternalException;

@@ -1,4 +1,4 @@
-package com.communication.server.util;
+package com.kang.custom.util;
 
 import android.os.Environment;
 import android.text.TextUtils;

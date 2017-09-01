@@ -7,20 +7,14 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
-import com.communication.server.impl.CommandHandle;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
-import com.communication.server.util.LogUtils;
-import com.kang.custom.application.MyApplication;
+import com.kang.custom.util.LogUtils;
 import com.kang.custom.receiver.NetworkConnectChangedReceiver;
-
-import org.apache.mina.core.session.IoSession;
 
 /**
  * Created by kang on 2017/7/12.

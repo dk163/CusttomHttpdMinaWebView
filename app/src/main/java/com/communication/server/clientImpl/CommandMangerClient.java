@@ -1,6 +1,5 @@
 package com.communication.server.clientImpl;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,13 +10,10 @@ import android.widget.Toast;
 import com.communication.server.constant.Constant;
 import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
-import com.communication.server.impl.CommandHandle;
 import com.communication.server.impl.CommandResource;
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.LogUtils;
 import com.google.gson.Gson;
 import com.kang.custom.activity.MainActivity;
-import com.kang.custom.application.MyApplication;
-import com.kang.custom.util.AppInfo;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;

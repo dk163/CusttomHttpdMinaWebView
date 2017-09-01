@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.communication.server.util.LogUtils;
-import com.communication.server.util.StringUtil;
+import com.kang.custom.util.LogUtils;
+import com.kang.custom.util.StringUtil;
 
 /**
  * Created by kang on 2017/8/31.

@@ -1,4 +1,4 @@
-package com.communication.server.util;
+package com.kang.custom.util;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

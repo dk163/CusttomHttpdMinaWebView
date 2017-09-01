@@ -5,8 +5,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Environment;
@@ -14,7 +12,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import android.util.Log;
 import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
@@ -22,10 +19,9 @@ import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
 import com.communication.server.data.PuhFile;
 import com.communication.server.session.CSession;
-import com.communication.server.session.ClientSessionManager;
 import com.communication.server.session.ServerSessionManager;
-import com.communication.server.util.FileUtil;
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.FileUtil;
+import com.kang.custom.util.LogUtils;
 import com.google.gson.Gson;
 import com.kang.custom.util.AppInfo;
 

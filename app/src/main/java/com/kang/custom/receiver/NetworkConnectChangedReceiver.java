@@ -12,7 +12,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Parcelable;
 
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.LogUtils;
 import com.kang.custom.activity.MainActivity;
 
 

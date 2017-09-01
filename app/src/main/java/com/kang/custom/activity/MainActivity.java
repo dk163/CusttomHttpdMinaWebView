@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
 import com.communication.server.httpd.NanoHTTPd;
-import com.communication.server.util.LogUtils;
+import com.kang.custom.util.LogUtils;
 import com.kang.custom.service.MinaClient;
 import com.kang.custom.util.AppInfo;
 import com.kang.custom.util.PermissionUtil;

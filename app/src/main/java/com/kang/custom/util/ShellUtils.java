@@ -1,4 +1,4 @@
-package com.communication.server.util;
+package com.kang.custom.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
