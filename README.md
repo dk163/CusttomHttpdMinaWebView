@@ -1,7 +1,7 @@
 # CustomLog
 
 launch activity 
-https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/mainActivity.png
+https://raw.githubusercontent.com/dk163/customHttpdMina/customLog/images-folder/mainActivity.png
 
 1.httpd port 8080 Button startHttpd Button stopHttpd
 
@@ -18,10 +18,10 @@ Button stopClient
 
 CustomLog tools     
 launch activity 
-https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/CustomLog_mainActivity
+https://raw.githubusercontent.com/dk163/customHttpdMina/customLog/images-folder/CustomLog_mainActivity
 
 activity 20170907   
-https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/zip_simple
+https://raw.githubusercontent.com/dk163/customHttpdMina/customLog/images-folder/zip_simple
 
 目的
 ROM管理设备端自定义的log
