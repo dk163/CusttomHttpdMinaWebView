@@ -20,6 +20,9 @@ CustomLog tools
 launch activity 
 https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/CustomLog_mainActivity
 
+activity 20170907   
+https://raw.githubusercontent.com/dk163/customHttpdMina/master/images-folder/zip_simple
+
 目的
 ROM管理设备端自定义的log
 

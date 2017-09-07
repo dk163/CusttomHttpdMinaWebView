@@ -1,13 +1,21 @@
 package com.communication.server.clientImpl;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.communication.server.constant.Constant;
+import com.communication.server.http.OkHttpClientManager;
 import com.communication.server.httpd.NanoHTTPd;
 import com.google.gson.Gson;
+import com.kang.custom.activity.MainActivity;
+import com.kang.custom.util.LogUtils;
+import com.kang.custom.util.TimeUtil;
+import com.squareup.okhttp.Request;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,21 +27,22 @@ import java.util.Date;
 
 
 public class CommandHandleClient {
-	
+
 	private volatile static CommandHandleClient instance;
 	public static String TAG = "CommandHandleClient";
-	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();	
+	public static final CharsetDecoder decoder = (Charset.forName("UTF-8")).newDecoder();
 	public Gson mGson = new Gson();
 
 	private static Context mContext;
 	private NanoHTTPd na;
-	
-	private static Handler mHandler = new Handler();
 
-	
+	private static Handler mHandler = new Handler();
+	private final String ZIP_PREFIX = ".zip";
+
+
 	private CommandHandleClient() {
 	}
-	
+
 	public static CommandHandleClient getInstance() {
 		if (instance == null) {
 			synchronized (CommandHandleClient.class) {
@@ -44,91 +53,90 @@ public class CommandHandleClient {
 		}
 		return instance;
 	}
-	
+
 	public static void setContext(Context context) {
 		mContext = context;
 	}
-	
+
 	public Context getContext() {
 		return mContext;
 	}
 
-	
 	/**
-	 * convertTimeStamp
-	 * @param path ,C:\\DCIM\\170607002\\200245BB.MP4
+	 * download CustomLog.zip from server
 	 * @return
 	 */
-	private long convertTimeStamp( String path){
-		long timeStamp = 0;
-		String str = "20";
-		
-		String tmp [] = path.split("\\\\");
+	public boolean downloadLogZIP() {
+		final String dir = "CustomLog_" + TimeUtil.timeConvertToString() + ZIP_PREFIX;
+		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
+		final String url = "http://192.168.43.1:8080/sdcard/CustomLog.zip";
 
-    	str = str +tmp[tmp.length-2].substring(0, tmp[tmp.length-2].length()-3);//year,month,day,20170607
-    	str = str + tmp[tmp.length-1].substring(0, tmp[tmp.length-1].length()-6);//time,20:02:45
-    	 	
-        SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyyMMddHHmmss");
-        Date date = null;
-		try {
-			date = simpleDateFormat .parse(str);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        timeStamp = date.getTime()/1000L;
-        
-		return timeStamp;
+		OkHttpClientManager.downloadAsyn(url, des, dir, new OkHttpClientManager.ResultCallback<String>() {
+			@Override
+			public void onError(Request request, Exception e) {
+				LogUtils.e("download Log zip fail");
+                Message msg = new Message();
+                msg.what = MainActivity.DOWNLOAD_STATE;
+                Bundle data = new Bundle();
+                data.putString("path", "fail");
+                msg.setData(data);
+                MainActivity.getmHandler().sendMessage(msg);
+
+				Toast.makeText(CommandHandleClient.getInstance().getContext(), "download Log failed", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onResponse(String response) {
+				LogUtils.i("download Log zip success");
+				Message msg = new Message();
+				msg.what = MainActivity.DOWNLOAD_STATE;
+				Bundle data = new Bundle();
+				data.putString("path", des+dir);
+				msg.setData(data);
+				MainActivity.getmHandler().sendMessage(msg);
+
+				Toast.makeText(CommandHandleClient.getInstance().getContext(), "download Log success", Toast.LENGTH_SHORT).show();
+			}
+		});
+
+		return true;
 	}
+
 	/**
-	 * 递归删除文件和文件夹
-	 * @param file 要删除的根目录
+	 * download MtkLog.zip from server
+	 * @return
 	 */
-	private void RecursionDeleteFile(File file){
-	    if(file.isFile()){
-	        file.delete();
-	        return;
-	    }
-	    if(file.isDirectory()){
-	        File[] childFile = file.listFiles();
-	        if(childFile == null || childFile.length == 0){
-	            file.delete();
-	            return;
-	        }
-			for(File f : childFile){
-				RecursionDeleteFile(f);
-				Log.d(TAG,"delete files");
+	public boolean downloadMtkLogZIP() {
+		final String dir = "MtkLog_" + TimeUtil.timeConvertToString() + ZIP_PREFIX;
+		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
+		final String url = "http://192.168.43.1:8080/sdcard/MtkLog.zip";
+
+		OkHttpClientManager.downloadAsyn(url, des, dir, new OkHttpClientManager.ResultCallback<String>() {
+			@Override
+			public void onError(Request request, Exception e) {
+				LogUtils.e("download mtkLog zip fail");
+                Message msg = new Message();
+                msg.what = MainActivity.DOWNLOAD_STATE;
+                Bundle data = new Bundle();
+                data.putString("path", "fail");
+                msg.setData(data);
+                MainActivity.getmHandler().sendMessage(msg);
+
+				Toast.makeText(CommandHandleClient.getInstance().getContext(), "download mtkLog failed", Toast.LENGTH_SHORT).show();
 			}
-	    }
-	}
 
-	public void  startHttpd(){
-		try {
-			if(na == null){
-				na = new NanoHTTPd(Constant.HTTPD_PORT);
+			@Override
+			public void onResponse(String response) {
+				LogUtils.i("download mtkLog zip success");
+				Message msg = new Message();
+				msg.what = MainActivity.DOWNLOAD_STATE;
+				Bundle data = new Bundle();
+				data.putString("path", des+dir);
+				msg.setData(data);
+				MainActivity.getmHandler().sendMessage(msg);
+				Toast.makeText(CommandHandleClient.getInstance().getContext(), "download mtkLog success", Toast.LENGTH_SHORT).show();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Log.i(TAG, "start com.communication.server.httpd");
-	}
-
-	public boolean  clearLog(){
-		final String dir = "NightVision";
-		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
-		Log.i(TAG, "start clearLog del path: " + des);
-
-		File file = new File(des);//the file to save the path
-		RecursionDeleteFile(file);
-
-		final String dir2 = "mtklog";
-		final String des2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir2;
-		Log.i(TAG, "start clearLog del path: " + des2);
-
-		File file2 = new File(des2);//the file to save the path
-		RecursionDeleteFile(file2);
-
-		Log.i(TAG, "clear log success");
+		});
 
 		return true;
 	}

@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,25 +32,32 @@ public class MainActivity extends AppCompatActivity{
 
     private final int TOAST_START_HTTPD = 0;
     private final int TOAST_STOP_HTTPD = 1;
-    private final int TOAST_ERROR = 2;
+    public static final int TOAST_ERROR = 2;
     private final int TOAST_STOP_CLIENT = 3;
     private final int TOAST_START_HTTPD_CLIENT = 4;
     private final static int STOP_CLIENT = 5;
     private final int START_CLIENT_ALREADY = 6;
     public final static int APP_VERSION = 7;
+    public final static int DOWNLOAD_STATE = 8;
 
     private static NanoHTTPd na;
     private Context mContext;
     private static String tmp = "";
 
     private static MainHandler mHandler;
+    private static boolean initDebug =  false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         mContext = this;
         mHandler =  new MainHandler(Looper.getMainLooper());
+
+        //init user layout
+        initUser();
+
+        //init debug
+//        initDebug();
 
         PermissionUtil.verifyStoragePermissions(this);
 
@@ -64,7 +72,204 @@ public class MainActivity extends AppCompatActivity{
             }
             mHandler.sendEmptyMessage(TOAST_START_HTTPD_CLIENT);
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LogUtils.d(TAG, "MainActivity onDestroy:");
+
+        Intent mIntent = new Intent(mContext, MinaClient.class);
+        stopService(mIntent);
+
+        if(na != null) na.stop();
+    }
+
+    public static MainHandler getmHandler() {
+        return mHandler;
+    }
+
+    public static void stopClient(){
+        mHandler.sendEmptyMessage(STOP_CLIENT);//broadcast stop mina client
+    }
+
+    private void setVesrion(String ver){
+        TextView version = (TextView) findViewById(R.id.version);
+        version.setText("Ver: "+ ver);
+        LogUtils.i(TAG,"app version: " + ver);
+    }
+
+    private void setDownloadState(String info){
+        TextView state = (TextView) findViewById(R.id.downLoadState);
+        if(initDebug){
+            LogUtils.i("init debug mode");
+            return;
+        }
+        if((info.equalsIgnoreCase("fail")) || (TextUtils.isEmpty(info))){
+            state.setText("Download log zip failed");
+        }else{
+            state.setText("download file success, path: "+ info + ".\n" +"Noote:/storage/emulated/0/是内置SD卡路径");
+            LogUtils.i(TAG,"download file path:" + info);
+        }
+    }
+
+    public class MainHandler extends Handler {
+
+        public MainHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Bundle bundle;
+            String info = "";
+
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case TOAST_START_HTTPD:
+                    Toast.makeText(getApplicationContext(), "start httpd success", Toast.LENGTH_SHORT).show();
+                    break;
+                case TOAST_STOP_HTTPD:
+                    Toast.makeText(getApplicationContext(), "stop httpd success", Toast.LENGTH_SHORT).show();
+                    break;
+                case TOAST_ERROR:
+                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                    if(!initDebug){
+                        TextView state = (TextView) findViewById(R.id.downLoadState);
+                        state.setText("Happen error");
+                    }
+                    break;
+                case TOAST_STOP_CLIENT:
+                    Toast.makeText(getApplicationContext(), "stop client success", Toast.LENGTH_SHORT).show();
+                    break;
+                case TOAST_START_HTTPD_CLIENT:
+                    Toast.makeText(getApplicationContext(), "client start httpd success", Toast.LENGTH_SHORT).show();
+                    break;
+                case STOP_CLIENT:
+                    Intent mIntent = new Intent(mContext, MinaClient.class);
+                    stopService(mIntent);
+                    Toast.makeText(getApplicationContext(), "wifi disConnect", Toast.LENGTH_SHORT).show();
+                    break;
+                case START_CLIENT_ALREADY:
+                    Toast.makeText(getApplicationContext(), "client session already connect", Toast.LENGTH_SHORT).show();
+                    break;
+                case APP_VERSION:
+                    bundle = msg.getData();
+                    info = bundle.getString("version");
+                    setVesrion(info);
+                    break;
+                case DOWNLOAD_STATE:
+                    bundle = msg.getData();
+                    info = bundle.getString("path");
+                    setDownloadState(info);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    //user layout init
+    private void initUser(){
+        setContentView(R.layout.activity_main_user);
+
+        Button startMtkLog = (Button)findViewById(R.id.startMtkLog);
+        startMtkLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_START_MTKLOG);
+                LogUtils.i(TAG, "start mtklog");
+            }
+        });
+        Button stopMtkLog = (Button)findViewById(R.id.stopMtkLog);
+        stopMtkLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_STOP_MTKLOG);
+                LogUtils.i(TAG, "stop mtklog");
+            }
+        });
+
+        Button getMtkLog = (Button) findViewById(R.id.getMtkLog);
+        getMtkLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+
+                TextView state = (TextView) findViewById(R.id.downLoadState);
+                state.setText("Downloading files......");
+
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_MTKLOG);
+                LogUtils.i(TAG, "getMtkLog mtklog");
+            }
+        });
+
+        Button clearCustomLog = (Button)findViewById(R.id.clearCustomLog);
+        clearCustomLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_CLEAR_LOG);
+                LogUtils.i(TAG, "clear log");
+            }
+        });
+
+//        //push file
+//        Button pushBtn = (Button) findViewById(R.id.pushButton);
+//        pushBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(null == ClientConnector.getClientAcceptorHandler()){
+//                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+//                    return;
+//                }
+//                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_PUSH_FILE);
+//                LogUtils.i(TAG, "push file to server");
+//            }
+//        });
+
+        //取log
+        Intent mIntent = new Intent(mContext, MinaClient.class);
+        startService(mIntent);
+
+        Button getLogBtn = (Button) findViewById(R.id.getLogBtn);
+        getLogBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
+
+                TextView state = (TextView) findViewById(R.id.downLoadState);
+                state.setText("Downloading files......");
+
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_LOG);
+                LogUtils.i(TAG, "zip log");
+            }
+        });
+    }
+
+    //debug layout init
+    private void initDebug(){
+        setContentView(R.layout.activity_main_debug);
+
+        initDebug =  true;
         Button startClient = (Button)findViewById(R.id.startClient);
         startClient.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,8 +351,8 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        Button zipMtkLog = (Button) findViewById(R.id.zipMtkLog);
-        zipMtkLog.setOnClickListener(new View.OnClickListener() {
+        Button getMtkLog = (Button) findViewById(R.id.getMtkLog);
+        getMtkLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(null == ClientConnector.getClientAcceptorHandler()){
@@ -155,7 +360,7 @@ public class MainActivity extends AppCompatActivity{
                     return;
                 }
                 ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_MTKLOG);
-                LogUtils.i(TAG, "zip mtklog");
+                LogUtils.i(TAG, "getMtkLog mtklog");
             }
         });
 
@@ -168,7 +373,7 @@ public class MainActivity extends AppCompatActivity{
                     return;
                 }
                 ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_CLEAR_LOG);
-                LogUtils.i(TAG, "clear NightVision log");
+                LogUtils.i(TAG, "clear log");
             }
         });
 
@@ -185,78 +390,26 @@ public class MainActivity extends AppCompatActivity{
                 LogUtils.i(TAG, "push file to server");
             }
         });
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LogUtils.d(TAG, "MainActivity onDestroy:");
+        Button getLogBtn = (Button) findViewById(R.id.getLogBtn);
+        getLogBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(null == ClientConnector.getClientAcceptorHandler()){
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                    return;
+                }
 
-        Intent mIntent = new Intent(mContext, MinaClient.class);
-        stopService(mIntent);
+                if(!initDebug){
+                    TextView state = (TextView) findViewById(R.id.downLoadState);
+                    state.setText("Downloading zip file....... ");
+                }
 
-        if(na != null) na.stop();
-    }
-
-    public static MainHandler getmHandler() {
-        return mHandler;
-    }
-
-    public static void stopClient(){
-        mHandler.sendEmptyMessage(STOP_CLIENT);//broadcast stop mina client
-    }
-
-    private void setVesrion(String ver){
-        TextView version = (TextView) findViewById(R.id.version);
-        version.setText("Ver: "+ ver);
-        LogUtils.i(TAG,"app version: " + ver);
-    }
-
-    public class MainHandler extends Handler {
-
-        public MainHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case TOAST_START_HTTPD:
-                    Toast.makeText(getApplicationContext(), "start httpd success", Toast.LENGTH_SHORT).show();
-                    break;
-                case TOAST_STOP_HTTPD:
-                    Toast.makeText(getApplicationContext(), "stop httpd success", Toast.LENGTH_SHORT).show();
-                    break;
-                case TOAST_ERROR:
-                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-                    break;
-                case TOAST_STOP_CLIENT:
-                    Toast.makeText(getApplicationContext(), "stop client success", Toast.LENGTH_SHORT).show();
-                    break;
-                case TOAST_START_HTTPD_CLIENT:
-                    Toast.makeText(getApplicationContext(), "client start httpd success", Toast.LENGTH_SHORT).show();
-                    break;
-                case STOP_CLIENT:
-                    Intent mIntent = new Intent(mContext, MinaClient.class);
-                    stopService(mIntent);
-                    Toast.makeText(getApplicationContext(), "wifi disConnect", Toast.LENGTH_SHORT).show();
-                    break;
-                case START_CLIENT_ALREADY:
-                    Toast.makeText(getApplicationContext(), "client session already connect", Toast.LENGTH_SHORT).show();
-                    break;
-                case APP_VERSION:
-                    Bundle data = msg.getData();
-                    String version = data.getString("version");
-                    setVesrion(version);
-                    break;
-
-                default:
-                    break;
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_LOG);
+                LogUtils.i(TAG, "zip log");
             }
-        }
+        });
     }
-
 
     //reserve for kang test
 //    public static MainHandler getmHandler() {

@@ -143,7 +143,12 @@ public final class CommandMangerClient {
 				mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_PUSHFILE, 1*1000);
 				break;
             case CommandResource.SYS_CMD_ZIPMTKLOG:
+                CommandHandleClient.getInstance().downloadMtkLogZIP();
                 mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPMTKLOG, 1*1000);
+                break;
+            case CommandResource.SYS_CMD_ZIPLOG:
+                CommandHandleClient.getInstance().downloadLogZIP();
+                mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPLOG, 1*1000);
                 break;
 
 			default:
@@ -165,7 +170,8 @@ public final class CommandMangerClient {
 			switch(msg.what){
                 case CommandResource.ERR_FAIL:
                     LogUtils.i(TAG, "CommandResource.ERR_FAIL");
-                    Toast.makeText(CommandHandleClient.getInstance().getContext(), "server happen error", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(CommandHandleClient.getInstance().getContext(), "server happen error", Toast.LENGTH_SHORT).show();
+					MainActivity.getmHandler().sendEmptyMessage(MainActivity.TOAST_ERROR);
                     break;
 				case CommandResource.SYS_CMD_STARTHTTPD:
 					Log.i(TAG,"SYS_CMD_STARTHTTPD ");
@@ -195,6 +201,10 @@ public final class CommandMangerClient {
                     Log.i(TAG, "SYS_CMD_ZIPMTKLOG");
                     Toast.makeText(CommandHandleClient.getInstance().getContext(), "zip mtklog success", Toast.LENGTH_SHORT).show();
                     break;
+				case CommandResource.SYS_CMD_ZIPLOG:
+					Log.i(TAG, "SYS_CMD_ZIPLOG");
+					Toast.makeText(CommandHandleClient.getInstance().getContext(), "zip log success", Toast.LENGTH_SHORT).show();
+					break;
 
 				default:
 					break;

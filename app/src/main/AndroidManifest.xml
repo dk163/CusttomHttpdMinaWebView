@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
 
-    <permission android:name="com.permission.MTKLOGGER" />
+    <!--<permission android:name="com.permission.MTKLOGGER" />--><!--for server need-->
     <permission android:name="android.permission.DUMP" />
 
 

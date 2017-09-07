@@ -96,30 +96,55 @@ public class CommandHandle {
 	}
 
 	public boolean  clearLog(){
-		final String dir = "NightVision";
-		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
-		LogUtils.i(TAG, "start clearLog del path: " + des);
-
-		File file = new File(des);//the file to save the path
-		FileUtil.RecursionDeleteFile(file);
-
-        String mtkZipPath = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog.zip");
-        File mtkLogZip = new File(mtkZipPath);
-        if(mtkLogZip.exists()){
-            LogUtils.i("delete mtklog zip file");
-            mtkLogZip.delete();
-        }
-
-		final String dir2 = "mtklog";
+		//del dir mtklog
+		final String dir2 = "MtkLog";
 		final String des2 = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir2;
 		LogUtils.i(TAG, "start clearLog del path: " + des2);
 
 		File file2 = new File(des2);//the file to save the path
 		if(FileUtil.RecursionDeleteFile(file2)){
-            LogUtils.i(TAG," delete mtklog dir");
-            LogUtils.i(TAG, "clear log success");
-            return true;
+			LogUtils.i(TAG," delete mtklog dir");
+		}
+
+		//del dir NightVision
+		String dir = "NightVision";
+		String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
+		LogUtils.i(TAG, "start clearLog del path: " + des);
+
+		File file = new File(des);//the file to save the path
+		FileUtil.RecursionDeleteFile(file);
+
+		//del dir CustomLog
+		dir = "CustomLog";
+		des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
+		LogUtils.i(TAG, "start clearLog del path: " + des);
+
+		file = new File(des);//the file to save the path
+		FileUtil.RecursionDeleteFile(file);
+
+		//del dir ONLY_YOU
+		dir = "ONLY_YOU";
+		des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + dir;
+		LogUtils.i(TAG, "start clearLog del path: " + des);
+
+		file = new File(des);//the file to save the path
+		FileUtil.RecursionDeleteFile(file);
+
+		//MtkLog.zip
+        String ZipPath = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("MtkLog.zip");
+        File LogZip = new File(ZipPath);
+        if(LogZip.exists()){
+            LogUtils.i("delete MtkLog zip file");
+			LogZip.delete();
         }
+
+		//CustomLog.zip
+        ZipPath = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("CustomLog.zip");
+		LogZip = new File(ZipPath);
+		if(LogZip.exists()){
+			LogUtils.i("delete CustomLog zip file");
+			LogZip.delete();
+		}
 
 		return false;
 	}

@@ -21,7 +21,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
-import com.communication.server.data.PuhFile;
+import com.communication.server.data.downloadFile;
 import com.communication.server.filter.ServerMessageCodecFactory;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
@@ -153,6 +153,12 @@ public class ClientConnector {
 						LogUtils.i(TAG, "push file");
 					}
 					break;
+				case Constant.MSG_ZIP_LOG:
+					if(null != session){
+						ClientSessionManager.getInstance().getSession(Constant.MINA_PORT).write(IoBuffer.wrap(Constant.CMD_ZIP_LOG.getBytes()));
+						LogUtils.i(TAG, "zip log");
+					}
+					break;
 
 				default:
 					break;
@@ -170,7 +176,7 @@ public class ClientConnector {
 
 	private String makeJson(int msg_id, String path, String fileName){
 		String ip = getWifiIP();
-		PuhFile pf =  new PuhFile(msg_id, path, ip, fileName);
+		downloadFile pf =  new downloadFile(msg_id, path, ip, fileName);
 
 		final String jsp = (new Gson()).toJson(pf);
 

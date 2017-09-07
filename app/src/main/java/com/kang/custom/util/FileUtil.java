@@ -17,6 +17,10 @@ public class FileUtil {
      * @param file 要删除的根目录
      */
     public static boolean RecursionDeleteFile(File file){
+        if(!file.exists()){
+            LogUtils.e("file is not exist");
+            return true;
+        }
         if(file.isFile()){
             file.delete();
             return false;
@@ -94,6 +98,13 @@ public class FileUtil {
         }
     }
 
+    /**
+     * 压缩为zip包
+     * @param zipOut
+     * @param file
+     * @param baseDir
+     * @throws Exception
+     */
     private static void recursionZip(ZipOutputStream zipOut, File file, String baseDir) throws Exception{
         if(file.isDirectory()){
             File[] files = file.listFiles();

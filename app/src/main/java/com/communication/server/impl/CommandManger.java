@@ -6,7 +6,10 @@ import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,10 +17,11 @@ import android.os.Message;
 
 import android.widget.Toast;
 
+import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
 import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
-import com.communication.server.data.PuhFile;
+import com.communication.server.data.downloadFile;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ServerSessionManager;
 import com.kang.custom.util.FileUtil;
@@ -111,10 +115,17 @@ public final class CommandManger {
 	}
 
 	private void handlerJson(String str) {
+		String src = "";
+		String des = "";
+		File file;
+		DataBase db;
+		String cmd = "";
+
 		DataBase base = mGson.fromJson(str, DataBase.class);
 		CSession session  =  ServerSessionManager.getInstance().getSession(Constant.MINA_PORT);
 		int id = base.getMsg_id();
 		LogUtils.d(TAG,"id:" + id);
+
 		switch (id){
 			case CommandResource.SYS_CMD_STARTHTTPD:
 				CommandHandle.getInstance().startHttpd();
@@ -180,7 +191,7 @@ public final class CommandManger {
 			case CommandResource.SYS_CMD_PUSHFILE:
 				LogUtils.i(TAG, "SYS_CMD_PUSHFILE");
 
-                PuhFile pf = mGson.fromJson(str, PuhFile.class);
+				downloadFile pf = mGson.fromJson(str, downloadFile.class);
                 CommandHandle.getInstance().pushFile(pf.getIp(), pf.getPath(), pf.getFileName());
 
                 session.write(IoBuffer.wrap((Constant.CMD_PUSH_FILE).getBytes()));
@@ -188,27 +199,97 @@ public final class CommandManger {
             case CommandResource.SYS_CMD_ZIPMTKLOG:
                 LogUtils.i(TAG, "SYS_CMD_ZIPMTKLOG");
 
-                String src = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog");
-                String des = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog.zip");
+                src = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("mtklog");
+                des = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("MtkLog.zip");
 
-                File file = new File(des);
+                file = new File(des);
                 if(file.exists()){
                     file.delete();
-                    LogUtils.d("del mtklog.zip: " + des);
+                    LogUtils.d("del MtkLog.zip: " + des);
                 }
 
                 if(FileUtil.zipMultiFile(src, des, true)){
+					final String fileName =  "MtkLog.zip";
+					file = new File(getInnerSDCardPath()+File.separator+fileName);
+					LogUtils.i(TAG, "file path: " + file.getAbsolutePath());
+					db = mGson.fromJson(Constant.CMD_ZIP_LOG, DataBase.class);
+					cmd = makeJson(db.getMsg_id(), file.getAbsolutePath(), fileName );//zip log msg_id
+
                     session.write(IoBuffer.wrap((Constant.CMD_ZIP_MTKLOG).getBytes()));
                 }else{
                     session.write(IoBuffer.wrap((Constant.CMD_ERROR).getBytes()));
                 }
                 break;
 
+			case CommandResource.SYS_CMD_ZIPLOG:
+				LogUtils.i(TAG, "SYS_CMD_ZIPLOG");
+
+				src = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("CustomLog");
+				des = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("CustomLog.zip");
+
+				file = new File(des);
+				if(file.exists()){
+					file.delete();
+					LogUtils.d("del CustomLog.zip: " + des);
+				}
+
+				if(FileUtil.zipMultiFile(src, des, true)){
+					final String fileName =  "CustomLog.zip";
+					file = new File(getInnerSDCardPath()+File.separator+fileName);
+					LogUtils.i(TAG, "file path: " + file.getAbsolutePath());
+					db = mGson.fromJson(Constant.CMD_ZIP_LOG, DataBase.class);
+					cmd = makeJson(db.getMsg_id(), file.getAbsolutePath(), fileName );//zip log msg_id
+
+					session.write(IoBuffer.wrap(cmd.getBytes()));
+				}else{
+					session.write(IoBuffer.wrap((Constant.CMD_ERROR).getBytes()));
+				}
+				break;
+
 			default:
 					LogUtils.i(TAG, "handelrJson switch default");
 					break;
 		}
 	}
+
+    private String makeJson(int msg_id, String path, String fileName){
+        String ip = getWifiIP();
+		downloadFile pf =  new downloadFile(msg_id, path, ip, fileName);
+
+        final String jsp = (new Gson()).toJson(pf);
+
+        return jsp;
+    }
+
+    /**
+     * 获取内置SD卡路径
+     * @return
+     */
+    private String getInnerSDCardPath() {
+        return Environment.getExternalStorageDirectory().getPath();
+    }
+
+    /**
+     * 得到wifi连接的IP地址
+     * @param
+     * @return
+     */
+    private  String getWifiIP(){
+        WifiManager wifiManager = (WifiManager)(CommandHandle.getInstance().getContext().getApplicationContext()).getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        int ipAddr = wifiInfo.getIpAddress();
+        String ipStr = int2string(ipAddr);
+        return ipStr;
+    }
+
+    /**
+     * 输入int 得到String类型的ip地址
+     * @param i
+     * @return
+     */
+    private  String int2string(int i){
+        return (i & 0xFF)+ "." + ((i >> 8 ) & 0xFF) + "." + ((i >> 16 ) & 0xFF) +"."+((i >> 24 ) & 0xFF );
+    }
 	
 //	public static byte[] hexStringToBytes(String s) {
 //        int len = s.length();
