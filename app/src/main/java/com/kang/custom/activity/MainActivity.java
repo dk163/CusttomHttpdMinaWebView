@@ -107,6 +107,8 @@ public class MainActivity extends AppCompatActivity{
         }
         if((info.equalsIgnoreCase("fail")) || (TextUtils.isEmpty(info))){
             state.setText("Download log zip failed");
+        }else if(info.equalsIgnoreCase("disconnect")){
+            state.setText("Connect device wifi,please");
         }else{
             state.setText("download file success, path: "+ info + ".\n" +"Noote:/storage/emulated/0/是内置SD卡路径");
             LogUtils.i(TAG,"download file path:" + info);
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity{
                     Intent mIntent = new Intent(mContext, MinaClient.class);
                     stopService(mIntent);
                     Toast.makeText(getApplicationContext(), "wifi disConnect", Toast.LENGTH_SHORT).show();
+                    setDownloadState("disconnect");
                     break;
                 case START_CLIENT_ALREADY:
                     Toast.makeText(getApplicationContext(), "client session already connect", Toast.LENGTH_SHORT).show();

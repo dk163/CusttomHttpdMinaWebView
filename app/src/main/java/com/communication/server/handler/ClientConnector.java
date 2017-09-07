@@ -25,6 +25,7 @@ import com.communication.server.data.downloadFile;
 import com.communication.server.filter.ServerMessageCodecFactory;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
+import com.kang.custom.activity.MainActivity;
 import com.kang.custom.util.LogUtils;
 import com.google.gson.Gson;
 
@@ -103,6 +104,7 @@ public class ClientConnector {
 			session = ClientSessionManager.getInstance().getSession(Constant.MINA_PORT);
 			if(session == null){
 				LogUtils.e(TAG, " client session is null");
+				MainActivity.getmHandler().sendEmptyMessage(MainActivity.TOAST_ERROR);
 				return;
 			}
 			switch (msg.what) {
