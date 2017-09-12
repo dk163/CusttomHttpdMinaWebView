@@ -212,8 +212,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/startWebView"
@@ -221,7 +220,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="startWebView"
-                        android:textAllCaps="false" />
+                        android:textAllCaps="false"
+                        android:visibility="gone"/>
 
                     <Button
                         android:id="@+id/pushButton"

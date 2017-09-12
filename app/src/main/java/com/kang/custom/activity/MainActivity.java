@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PermissionUtil.verifyStoragePermissions(this);
+
         mContext = this;
         mHandler =  new MainHandler(Looper.getMainLooper());
 
@@ -58,8 +60,6 @@ public class MainActivity extends AppCompatActivity{
 
         //init debug
 //        initDebug();
-
-        PermissionUtil.verifyStoragePermissions(this);
 
         LogUtils.i("app name: " +AppInfo.getPackageName(this));
         LogUtils.i("app version: "+AppInfo.getVersionCode(this));
@@ -266,6 +266,28 @@ public class MainActivity extends AppCompatActivity{
                 LogUtils.i(TAG, "zip log");
             }
         });
+
+        Button startWebView = (Button)findViewById(R.id.startWebView);
+        startWebView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText edHttpdUrl = (EditText) findViewById(R.id.edHttpdUrl);//httpd server url
+                tmp = edHttpdUrl.getText().toString();
+                if(!(tmp.isEmpty()) && (tmp.length() != 0)){
+                    Constant.setHTTPIPPORT("http://"+tmp+":8080");
+                    LogUtils.i(TAG, "httpd server ip: "+ ("http://"+tmp+":8080"));
+                }
+
+                Intent intent = new Intent();//download file to /mnt/sdcard/MyFavorite
+                intent.setAction("android.intent.action.VIEW");
+                Uri content_url = Uri.parse(Constant.HTTPDIPPORT);
+                intent.setData(content_url);
+                startActivity(intent);
+//                mIntent = new Intent(mContext, WebViewActivity.class);
+//                startActivity(mIntent);
+                LogUtils.i(TAG, "open webview");
+            }
+        });
     }
 
     //debug layout init
@@ -381,18 +403,18 @@ public class MainActivity extends AppCompatActivity{
         });
 
         //push file
-        Button pushBtn = (Button) findViewById(R.id.pushButton);
-        pushBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(null == ClientConnector.getClientAcceptorHandler()){
-                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
-                    return;
-                }
-                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_PUSH_FILE);
-                LogUtils.i(TAG, "push file to server");
-            }
-        });
+//        Button pushBtn = (Button) findViewById(R.id.pushButton);
+//        pushBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(null == ClientConnector.getClientAcceptorHandler()){
+//                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+//                    return;
+//                }
+//                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_PUSH_FILE);
+//                LogUtils.i(TAG, "push file to server");
+//            }
+//        });
 
         Button getLogBtn = (Button) findViewById(R.id.getLogBtn);
         getLogBtn.setOnClickListener(new View.OnClickListener() {

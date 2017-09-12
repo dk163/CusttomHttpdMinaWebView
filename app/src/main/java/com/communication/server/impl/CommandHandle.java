@@ -146,7 +146,7 @@ public class CommandHandle {
 			LogZip.delete();
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
