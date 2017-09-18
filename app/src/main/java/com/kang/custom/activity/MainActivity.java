@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity{
         }else if(info.equalsIgnoreCase("disconnect")){
             state.setText("Connect device wifi,please");
         }else{
-            state.setText("download file success, path: "+ info + ".\n" +"Noote:/storage/emulated/0/是内置SD卡路径");
+            state.setText("download file success, path: "+ info + ".\n" +"Note:/storage/emulated/0/是内置SD卡路径");
             LogUtils.i(TAG,"download file path:" + info);
         }
     }
