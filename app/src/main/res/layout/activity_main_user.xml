@@ -78,6 +78,14 @@
                         android:layout_weight="1"
                         android:text="clearALLLog"
                         android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/uploadLog"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="uploadLog"
+                        android:textAllCaps="false" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -250,6 +258,7 @@
                         android:layout_gravity="start"
                         android:text="Develop by Kang"
                         android:textSize="15dp"
+                        android:textStyle="bold"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true" />

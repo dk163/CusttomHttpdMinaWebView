@@ -5,9 +5,9 @@ package com.communication.server.data;
  */
 
 public class downloadFile extends DataBase{
-    String path = "";
-    String ip = "";
-    String fileName = "";
+    private String path = "";
+    private String ip = "";
+    private String fileName = "";
 
     public downloadFile(int msg_id, String path, String ip, String fileName) {
         super(msg_id);

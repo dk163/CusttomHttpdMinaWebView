@@ -1,5 +1,6 @@
 package com.kang.custom.application;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
@@ -8,17 +9,20 @@ import android.content.Context;
  */
 
 public class MyApplication extends Application {
-    private static Context myApp;
+    private static Activity mActivity;
 
     public MyApplication() {
     }
 
     public void onCreate() {
         super.onCreate();
-        myApp =  getContext();
     }
 
-    public static Context getContext(){
-        return myApp;
+    public static void setContext(Activity activity){
+        mActivity = activity;
+    }
+
+    public static Activity getContext(){
+        return mActivity;
     }
 }

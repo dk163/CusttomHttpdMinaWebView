@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import com.communication.server.http.OkHttpClientManager;
 import com.communication.server.httpd.NanoHTTPd;
 import com.google.gson.Gson;
 import com.kang.custom.activity.MainActivity;
+import com.kang.custom.fileUpload.LogUpload;
 import com.kang.custom.util.LogUtils;
 import com.kang.custom.util.TimeUtil;
 import com.squareup.okhttp.Request;
@@ -38,6 +40,7 @@ public class CommandHandleClient {
 
 	private static Handler mHandler = new Handler();
 	private final String ZIP_PREFIX = ".zip";
+	private String project_prefix = "C41_";
 
 
 	private CommandHandleClient() {
@@ -62,12 +65,24 @@ public class CommandHandleClient {
 		return mContext;
 	}
 
+	public void setmFileName(String fileName, String imei) {
+        if(TextUtils.isEmpty(fileName)){
+            LogUtils.e("fileName is null");
+            return;
+        }
+
+        String [] versionSplit = fileName.split("_");
+		this.project_prefix = versionSplit[0].concat("_");
+        LogUpload.getInstance().setmImei(imei);
+        LogUpload.getInstance().setmProject(fileName);
+	}
+
 	/**
 	 * download CustomLog.zip from server
 	 * @return
 	 */
 	public boolean downloadLogZIP() {
-		final String dir = "CustomLog_" + TimeUtil.timeConvertToString() + ZIP_PREFIX;
+		final String dir = project_prefix + "CustomLog_" + TimeUtil.timeConvertToString() + ZIP_PREFIX;
 		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
 		final String url = "http://192.168.43.1:8080/sdcard/CustomLog.zip";
 
@@ -107,7 +122,7 @@ public class CommandHandleClient {
 	 * @return
 	 */
 	public boolean downloadMtkLogZIP() {
-		final String dir = "MtkLog_" + TimeUtil.timeConvertToString() + ZIP_PREFIX;
+		final String dir = project_prefix + "MtkLog_" + TimeUtil.timeConvertToString() + ZIP_PREFIX;
 		final String des = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
 		final String url = "http://192.168.43.1:8080/sdcard/MtkLog.zip";
 

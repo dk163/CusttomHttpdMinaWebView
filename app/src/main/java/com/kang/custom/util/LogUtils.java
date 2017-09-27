@@ -24,6 +24,7 @@ public final class LogUtils {
 	private static final String LOG_FILENAME = LOG_DIR + LOG_SUFFIX;
 
 	public static boolean debug = true; // Log switch open, development, released when closed(LogCat)
+	private static volatile boolean isWriteFile = false;
 	//public static int level = Log.VERBOSE; // Write file level
 	public static int level = Log.ERROR; // Write file level
 
@@ -245,8 +246,10 @@ public final class LogUtils {
 			if (type >= level) {
 				String stackTraceString = Log.getStackTraceString(tr);
 				if (!TextUtils.isEmpty(stackTraceString)) {
-					writeLog(type, (msg == null ? "" : msg) + getEnterChart()
-							+ (stackTraceString == null ? "" : stackTraceString));
+					if(isWriteFile) {
+						writeLog(type, (msg == null ? "" : msg) + getEnterChart()
+								+ (stackTraceString == null ? "" : stackTraceString));
+					}
 				}
 			}
 
@@ -459,5 +462,9 @@ public final class LogUtils {
 		 * lc.setLevel("org.apache", LogLevel.ERROR); lc.setFilePattern("%d %-5p [%c{2}]-[%L] %m%n");
 		 * lc.setMaxFileSize(2 * 1024 * 1024); lc.setImmediateFlush(true); lc.configure();
 		 */
+	}
+
+	public static void setIsWriteFile(boolean isWriteFile) {
+		LogUtils.isWriteFile = isWriteFile;
 	}
 }

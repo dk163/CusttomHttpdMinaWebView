@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.communication.server.constant.Constant;
 import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
+import com.communication.server.data.SystemInfo;
 import com.communication.server.impl.CommandResource;
 import com.kang.custom.util.LogUtils;
 import com.google.gson.Gson;
@@ -111,7 +112,7 @@ public final class CommandMangerClient {
                 break;
 			case CommandResource.SYS_CMD_STARTHTTPD:
 				Log.i(TAG, "SYS_CMD_STARTHTTPD receive");
-				mHander.sendEmptyMessage(CommandResource.SYS_CMD_STARTHTTPD);
+				mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_STARTHTTPD,3*1000);
 
 				AppData appData = mGson.fromJson(str,
 						AppData.class);
@@ -144,12 +145,17 @@ public final class CommandMangerClient {
 				break;
             case CommandResource.SYS_CMD_ZIPMTKLOG:
                 CommandHandleClient.getInstance().downloadMtkLogZIP();
-                mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPMTKLOG, 1*1000);
+                //mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPMTKLOG, 1*1000);//kang
                 break;
             case CommandResource.SYS_CMD_ZIPLOG:
                 CommandHandleClient.getInstance().downloadLogZIP();
-                mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPLOG, 1*1000);
+                //mHander.sendEmptyMessageDelayed(CommandResource.SYS_CMD_ZIPLOG, 1*1000);//kang
                 break;
+			case CommandResource.SYS_CMD_SYSINFO:
+				SystemInfo systemInfo = mGson.fromJson(str,
+						SystemInfo.class);
+				CommandHandleClient.getInstance().setmFileName(systemInfo.getSysVer(), systemInfo.getImei());
+				break;
 
 			default:
 					Log.i(TAG, "handelrJson switch default");

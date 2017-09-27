@@ -1,6 +1,7 @@
 package com.communication.server.impl;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
@@ -15,12 +16,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.communication.server.clientImpl.CommandHandleClient;
 import com.communication.server.constant.Constant;
 import com.communication.server.data.AppData;
 import com.communication.server.data.DataBase;
+import com.communication.server.data.SystemInfo;
 import com.communication.server.data.downloadFile;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ServerSessionManager;
@@ -28,6 +32,9 @@ import com.kang.custom.util.FileUtil;
 import com.kang.custom.util.LogUtils;
 import com.google.gson.Gson;
 import com.kang.custom.util.AppInfo;
+import com.kang.custom.util.ReflectCase;
+import com.kang.custom.util.SystemProperty;
+
 
 public final class CommandManger {
 	private volatile static CommandManger instance;
@@ -40,9 +47,16 @@ public final class CommandManger {
 
 	private String mLeftStr = "";
     private String json = "";
+	private final String PROPERTY_CUSTOM_BUILD_VERSION = "ro.mediatek.version.release";
+	private String systemVersion = "";
+	private String imei = "";
 
 	private CommandManger() {
 		mHander = new CommandManagerHander(CommandHandle.getInstance().getContext().getMainLooper());
+		systemVersion = SystemProperty.getProperty(PROPERTY_CUSTOM_BUILD_VERSION, "nodefine");
+
+		TelephonyManager mTm = (TelephonyManager) (CommandHandle.getInstance().getContext()).getSystemService(Context.TELEPHONY_SERVICE);
+		imei = mTm.getDeviceId();
 	}
 	
 	public static CommandManger getInstance() {
@@ -132,6 +146,10 @@ public final class CommandManger {
 
                 AppData appData = new AppData(1, AppInfo.getVersionCode(CommandHandle.getInstance().getContext()));
                 json = (new Gson()).toJson(appData);
+				session.write(IoBuffer.wrap((json).getBytes()));
+
+				SystemInfo systemInfo = new SystemInfo(CommandResource.SYS_CMD_SYSINFO, systemVersion, imei);
+				json = (new Gson()).toJson(systemInfo);
 				session.write(IoBuffer.wrap((json).getBytes()));
 				break;
 			case  CommandResource.SYS_CMD_STARTMTKLOG:
