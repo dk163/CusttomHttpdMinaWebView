@@ -265,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initViews(){
         setContentView(R.layout.activity_main_user);
 
-        //取log
         Intent mIntent = new Intent(mContext, MinaClient.class);
         startService(mIntent);
 
@@ -273,10 +272,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         startMtkLog = (Button)findViewById(R.id.startMtkLog);
         stopMtkLog = (Button)findViewById(R.id.stopMtkLog);
+        //get MtkLog
         getMtkLog = (Button) findViewById(R.id.getMtkLog);
         clearCustomLog = (Button)findViewById(R.id.clearCustomLog);
         //push file
         pushBtn = (Button) findViewById(R.id.pushButton);
+        //get customLog
         getLogBtn = (Button) findViewById(R.id.getLogBtn);
         startWebView = (Button)findViewById(R.id.startWebView);
         //upload file
