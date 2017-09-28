@@ -335,12 +335,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             File file = new File(info);
             mSize = -1;
+            LogUtils.i(TAG,"download file path:" + info);
+            mUploadPath = info;
             if(file.isFile() && file.exists()){
                 mSize = file.length();
                 updateFileEditTextView("Download");
             }
-            LogUtils.i(TAG,"download file path:" + info);
-            mUploadPath = info;
         }
     }
 
