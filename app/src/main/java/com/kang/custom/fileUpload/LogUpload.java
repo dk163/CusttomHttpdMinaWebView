@@ -2,6 +2,7 @@ package com.kang.custom.fileUpload;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Movie;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,7 +33,7 @@ import rx.functions.Func1;
 public class LogUpload {
     private ProgressDialog dialog =null;
     private static String url="";
-    private static Activity mActivity;
+    private static Context mContext;
     /**
      * SDK初始化也可以放到Application中,第三方https://www.bmob.cn/
      */
@@ -41,6 +42,10 @@ public class LogUpload {
     private volatile static LogUpload instance;
     private String mImei = "1234567890";
     private String mProject = "default";
+
+    public void setContext(Context context) {
+        this.mContext = context;
+    }
 
     public void setmImei(String mImei) {
         this.mImei = mImei;
@@ -54,16 +59,20 @@ public class LogUpload {
         if (instance == null) {
             synchronized (LogUpload.class) {
                 if (instance == null) {
-                    instance = new LogUpload(MyApplication.getContext());
+                    instance = new LogUpload();
                 }
             }
         }
         return instance;
     }
 
-    private LogUpload(Activity activity) {
-        this.mActivity = activity;
-        dialog = new ProgressDialog(mActivity);
+    private LogUpload() {
+        if(null == mContext){
+            LogUtils.e("mContext is null, return");
+            return;
+        }else{
+            dialog = new ProgressDialog(mContext);
+        }
     }
 
     public ProgressDialog getDialog() {
@@ -82,12 +91,16 @@ public class LogUpload {
 //		.setFileExpiration(86400)
 //		.build();
 //		Bmob.initialize(config);
-
-        Bmob.initialize(mActivity, APPID);
+        if(null == mContext){
+            LogUtils.e("mContext is null, return");
+            return;
+        }else{
+            Bmob.initialize(mContext, APPID);
+        }
     }
     public void upload(final String path){
         if(null == dialog){
-            dialog = new ProgressDialog(mActivity);
+            dialog = new ProgressDialog(mContext);
         }
         //String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "temp.jpg";
         if(TextUtils.isEmpty(path)){

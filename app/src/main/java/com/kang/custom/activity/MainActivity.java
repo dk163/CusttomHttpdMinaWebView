@@ -71,14 +71,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MyApplication.setContext(this);
         PermissionUtil.verifyStoragePermissions(this);
         /**
          * upload log init
          */
         try {
+            LogUpload.getInstance().setContext(this);
             LogUpload.getInstance().init();
-            //upload.upload();
         } catch (Exception e) {
             e.printStackTrace();
         }

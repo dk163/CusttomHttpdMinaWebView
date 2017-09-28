@@ -12,6 +12,7 @@ import org.apache.mina.core.session.IoSession;
 import com.communication.server.clientImpl.CommandMangerClient;
 import com.communication.server.session.CSession;
 import com.communication.server.session.ClientSessionManager;
+import com.kang.custom.util.LogUtils;
 
 /**
  * 客户端请求的入口，所有请求都首先经过它分发处理
@@ -34,7 +35,7 @@ public class ClientCIoHandler extends IoHandlerAdapter {
 		int port = ((InetSocketAddress)session.getRemoteAddress()).getPort();
 		byte[] bytes = (byte[])message;
 
-		Log.e(TAG, "port: "+port);
+		LogUtils.e(TAG, "port: "+port);
 		CommandMangerClient.getInstance().process(port, bytes);
 	}
 	

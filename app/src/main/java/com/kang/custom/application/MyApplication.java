@@ -9,20 +9,17 @@ import android.content.Context;
  */
 
 public class MyApplication extends Application {
-    private static Activity mActivity;
+    private static Context mContext;
 
     public MyApplication() {
     }
 
     public void onCreate() {
         super.onCreate();
+        mContext = this.getApplicationContext();
     }
 
-    public static void setContext(Activity activity){
-        mActivity = activity;
-    }
-
-    public static Activity getContext(){
-        return mActivity;
+    public static Context getContext(){
+        return mContext;
     }
 }
