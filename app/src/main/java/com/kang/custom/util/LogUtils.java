@@ -362,7 +362,7 @@ public final class LogUtils {
 				write(saveFile, msg, append);
 			} else if (append && saveFile.exists()) {
 				long fileLen = saveFile.length();
-				if (fileLen > 5 * 1024 * 1024) {
+				if (fileLen > 1 * 1024 * 1024) {//1M
 					saveFile.delete();
 					saveFile.createNewFile();
 				}

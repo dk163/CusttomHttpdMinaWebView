@@ -1,6 +1,5 @@
 package com.kang.custom.application;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 

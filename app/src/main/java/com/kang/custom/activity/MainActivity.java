@@ -9,7 +9,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 import com.communication.server.constant.Constant;
 import com.communication.server.handler.ClientConnector;
 import com.communication.server.httpd.NanoHTTPd;
-import com.kang.custom.application.MyApplication;
 import com.kang.custom.fileUpload.LogUpload;
 import com.kang.custom.util.LogUtils;
 import com.kang.custom.service.MinaClient;
@@ -64,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static MainHandler mHandler;
     private static boolean DebugMode =  false;//debug flag
 
-    private String uploadPath;
-    private long size;
+    private String mUploadPath;
+    private long mSize;
 
 
     @Override
@@ -232,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             break;
             case R.id.uploadLog: {
-                LogUpload.getInstance().upload(uploadPath);
+                LogUpload.getInstance().upload(mUploadPath);
             }
             break;
 
@@ -336,13 +334,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             state.setText("Connect device wifi,please");
         }else{
             File file = new File(info);
-            size = -1;
+            mSize = -1;
             if(file.isFile() && file.exists()){
-                size = (file.length()/1024);//kb
+                mSize = file.length();
+                updateFileEditTextView("Download");
             }
-            state.setText("Download file success, file size:"+size +"Kb.\n" +"File path: "+info+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
             LogUtils.i(TAG,"download file path:" + info);
-            uploadPath = info;
+            mUploadPath = info;
+        }
+    }
+
+    private void updateFileEditTextView(String str){
+        if (mSize < 1024){
+            state.setText(str + " file success, file size: 0."+mSize +"KB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
+        }else if((mSize > 1024)&& (mSize < 1048576)){
+            state.setText(str + " file success, file size:"+(mSize/1024)+"."+(mSize%1024) +"KB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
+        }else if((mSize > 1048576) && (mSize < 1073741824)) {
+            state.setText(str + " file success, file size:"+(mSize/1048576)+"."+(mSize%1048576) +"MB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
         }
     }
 
@@ -403,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case UPLOAD_FILE_RESULT:
                     bundle = msg.getData();
                     if((null != bundle) && (bundle.getInt("result") == 1)){
-                        state.setText("Upload file success, file size:"+size +"Kb.\n" +"path: "+ uploadPath + ".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
+                        updateFileEditTextView("Upload");
                     }else{
                         state.setText("Upload file fail!");
                     }

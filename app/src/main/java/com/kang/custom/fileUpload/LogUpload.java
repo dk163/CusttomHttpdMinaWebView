@@ -1,17 +1,13 @@
 package com.kang.custom.fileUpload;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Movie;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.text.TextUtils;
-import android.view.View;
 
 import com.kang.custom.activity.MainActivity;
-import com.kang.custom.application.MyApplication;
 import com.kang.custom.util.LogUtils;
 
 import java.io.File;
@@ -37,7 +33,8 @@ public class LogUpload {
     /**
      * SDK初始化也可以放到Application中,第三方https://www.bmob.cn/
      */
-    public static String APPID = "c3cfb6bdcfc0d484f5c47ff215424c83";
+    //public static String APPID = "c3cfb6bdcfc0d484f5c47ff215424c83";
+    public static String APPID = "736e32cf54d4993a87555df262dd19db";//kang
 
     private volatile static LogUpload instance;
     private String mImei = "1234567890";

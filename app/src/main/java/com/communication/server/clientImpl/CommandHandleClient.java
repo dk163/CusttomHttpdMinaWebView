@@ -40,7 +40,7 @@ public class CommandHandleClient {
 
 	private static Handler mHandler = new Handler();
 	private final String ZIP_PREFIX = ".zip";
-	private String project_prefix = "C41_";
+	private String project_prefix = "";
 
 
 	private CommandHandleClient() {

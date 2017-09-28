@@ -146,6 +146,11 @@ public class CommandHandle {
 			LogZip.delete();
 		}
 
+		//app log dir CUSTOM_DEBUG
+		String CUSTOM_DEBUG = (Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator).concat("CUSTOM_DEBUG");
+		file = new File(CUSTOM_DEBUG);
+		FileUtil.RecursionDeleteFile(file);
+
 		return true;
 	}
 
