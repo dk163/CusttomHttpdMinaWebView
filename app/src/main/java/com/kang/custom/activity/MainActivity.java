@@ -1,5 +1,6 @@
 package com.kang.custom.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button startWebView;
     private Button uploadLog;
     private TextView state;
+    private ProgressDialog dialog;
 
     private final int TOAST_START_HTTPD = 0;
     private final int TOAST_STOP_HTTPD = 1;
@@ -169,10 +171,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
-                if (true) {
-                    state = (TextView) findViewById(R.id.downLoadState);
-                    state.setText("Downloading files......");
-                }
+                state.setText("Downloading files......");
+                updateDownloadState(true);
 
                 ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_MTKLOG);
                 LogUtils.i(TAG, "getMtkLog mtklog");
@@ -202,10 +202,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
-                if (true) {
-                    state = (TextView) findViewById(R.id.downLoadState);
-                    state.setText("Downloading files......");
-                }
+                state.setText("Downloading files......");
+                updateDownloadState(true);
 
                 ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_LOG);
                 LogUtils.i(TAG, "zip log");
@@ -266,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startService(mIntent);
 
         state = (TextView) findViewById(R.id.downLoadState);
+        dialog = new ProgressDialog(mContext);
 
         startMtkLog = (Button)findViewById(R.id.startMtkLog);
         stopMtkLog = (Button)findViewById(R.id.stopMtkLog);
@@ -287,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main_debug);
 
         state = (TextView) findViewById(R.id.downLoadState);
+        dialog = new ProgressDialog(mContext);
 
         startMtkLog = (Button)findViewById(R.id.startMtkLog);
         stopMtkLog = (Button)findViewById(R.id.stopMtkLog);
@@ -345,13 +345,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateFileEditTextView(String str){
-        if (mSize < 1024){
+        if (mSize < 1024){//KB
             state.setText(str + " file success, file size: 0."+mSize +"KB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
-        }else if((mSize > 1024)&& (mSize < 1048576)){
+        }else if((mSize > 1024)&& (mSize < 1048576)){//KB
             state.setText(str + " file success, file size:"+(mSize/1024)+"."+(mSize%1024) +"KB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
-        }else if((mSize > 1048576) && (mSize < 1073741824)) {
+        }else if((mSize > 1048576) && (mSize < 1073741824)) {//MB
             state.setText(str + " file success, file size:"+(mSize/1048576)+"."+(mSize%1048576) +"MB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
         }
+    }
+
+    private void updateDownloadState(boolean b){
+        if(b){
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.setTitle("下载中...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }else{
+            dialog.dismiss();
+        }
+
     }
 
     public class MainHandler extends Handler {
@@ -375,10 +389,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case TOAST_ERROR:
                     Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-                    if(true){
-                        state = (TextView) findViewById(R.id.downLoadState);
-                        state.setText("Happen error");
-                    }
+
+                    state.setText("Happen error");
                     break;
                 case TOAST_STOP_CLIENT:
                     Toast.makeText(getApplicationContext(), "stop client success", Toast.LENGTH_SHORT).show();
@@ -407,6 +419,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     bundle = msg.getData();
                     info = bundle.getString("path");
                     setDownloadState(info);
+                    updateDownloadState(false);
                     break;
                 case UPLOAD_FILE_RESULT:
                     bundle = msg.getData();

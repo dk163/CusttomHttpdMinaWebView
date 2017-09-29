@@ -27,8 +27,8 @@ import rx.functions.Func1;
  */
 
 public class LogUpload {
-    private ProgressDialog dialog =null;
-    private static String url="";
+    private ProgressDialog dialog = null;
+    private static String url = "";
     private static Context mContext;
     /**
      * SDK初始化也可以放到Application中,第三方https://www.bmob.cn/
@@ -156,6 +156,7 @@ public class LogUpload {
             public void onError(Throwable e) {
                 LogUtils.i("--onError--:"+e.getMessage());
                 dialog.dismiss();
+                MainActivity.getmHandler().sendEmptyMessage(MainActivity.TOAST_ERROR);
             }
 
             @Override
