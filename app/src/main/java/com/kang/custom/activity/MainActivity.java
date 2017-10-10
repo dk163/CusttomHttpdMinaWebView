@@ -391,6 +391,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
 
                     state.setText("Happen error");
+                    updateDownloadState(false);
                     break;
                 case TOAST_STOP_CLIENT:
                     Toast.makeText(getApplicationContext(), "stop client success", Toast.LENGTH_SHORT).show();

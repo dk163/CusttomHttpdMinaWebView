@@ -27,6 +27,6 @@ public class SystemProperty {
 
         Class[] methodClazzs = { String.class, String.class };
         Object[] methodValues = { key, value };
-        r.initMethod(obj2, "get", methodClazzs, methodValues);
+        r.initMethod(obj2, "set", methodClazzs, methodValues);
     }
 }
