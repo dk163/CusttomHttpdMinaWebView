@@ -10,5 +10,5 @@ public class CommandResource {
 	public static final byte SYS_CMD_PUSHFILE = 0x0006;//push file
 	public static final byte SYS_CMD_ZIPMTKLOG = 0x0007;//zip mtk log
 	public static final byte SYS_CMD_ZIPLOG = 0x0008;//zip log
-	public static final byte SYS_CMD_SYSINFO = 0x0009;//zip log
+	public static final byte SYS_CMD_SYSINFO = 0x0009;//system info
 }
