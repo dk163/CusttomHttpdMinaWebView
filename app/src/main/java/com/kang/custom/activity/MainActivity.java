@@ -276,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startService(mIntent);
 
         state = (TextView) findViewById(R.id.downLoadState);
+        setVesrion(AppInfo.getVersionCode(MainActivity.this));
+
         dialog = new ProgressDialog(mContext);
 
         startMtkLog = (Button)findViewById(R.id.startMtkLog);
@@ -328,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void setVesrion(String ver){
         TextView version = (TextView) findViewById(R.id.version);
-        version.setText("Ver: "+ ver);
+        version.setText("APP Ver: "+ ver);
         LogUtils.i(TAG,"app version: " + ver);
     }
 
@@ -432,8 +434,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case APP_VERSION:
                     bundle = msg.getData();
-                    info = bundle.getString("version");
-                    setVesrion(info);
+//                    info = bundle.getString("version");//server app version
+//                    info = AppInfo.getVersionCode(MainActivity.this);
+//                    setVesrion(info);
                     break;
                 case DOWNLOAD_STATE:
                     bundle = msg.getData();

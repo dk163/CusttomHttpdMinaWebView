@@ -36,6 +36,7 @@
         android:theme="@style/AppTheme">
 
         <activity
+            android:screenOrientation = "portrait"
             android:name="com.kang.custom.activity.MainActivity"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
