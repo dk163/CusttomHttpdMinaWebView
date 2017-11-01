@@ -3,6 +3,7 @@ package com.kang.custom.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private String mUploadPath;
     private long mSize;
+    private final String mNote = "Note:/storage/emulated/0/是手机内置存储空间";
+    private static boolean mWifiState = true;//true connect,false disconnect
 
 
     @Override
@@ -120,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        state.setTextColor(Color.GRAY);
+
         switch (v.getId()){
             case R.id.startClient: {
                 if (MinaClient.isClientInstance()) {
@@ -173,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 state.setText("Downloading files......");
                 updateDownloadState(true);
+
+                ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_STOP_MTKLOG);//stop MTKLog
 
                 ClientConnector.getClientAcceptorHandler().sendEmptyMessage(Constant.MSG_ZIP_MTKLOG);
                 LogUtils.i(TAG, "getMtkLog mtklog");
@@ -228,7 +235,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             break;
             case R.id.uploadLog: {
-                LogUpload.getInstance().upload(mUploadPath);
+                if(mWifiState && (!TextUtils.isEmpty(mUploadPath))){
+                    LogUpload.getInstance().upload(mUploadPath);
+                }else{
+                    mHandler.sendEmptyMessageDelayed(TOAST_ERROR, 0);
+                }
+
             }
             break;
 
@@ -328,10 +340,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(true){
             LogUtils.i("init debug mode");
         }
+
+        state.setTextColor(Color.RED);
         if((info.equalsIgnoreCase("fail")) || (TextUtils.isEmpty(info))){
             state.setText("Download log zip failed");
         }else if(info.equalsIgnoreCase("disconnect")){
             state.setText("Connect device wifi,please");
+            mWifiState = false;
+        }else if((info.equalsIgnoreCase("error")) || (TextUtils.isEmpty(info))) {
+            state.setText("Server happen error");
         }else{
             File file = new File(info);
             mSize = -1;
@@ -345,17 +362,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateFileEditTextView(String str){
+        state.setTextColor(Color.GRAY);
         if (mSize < 1024){//KB
-            state.setText(str + " file success, file size: 0."+mSize +"KB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
+            state.setText(str + " file success, file size: 0."+mSize +"KB.\n" +"File path: "+mUploadPath+".\n"+mNote);
         }else if((mSize > 1024)&& (mSize < 1048576)){//KB
-            state.setText(str + " file success, file size:"+(mSize/1024)+"."+(mSize%1024) +"KB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
+            state.setText(str + " file success, file size:"+(mSize/1024)+"."+(mSize%1024) +"KB.\n" +"File path: "+mUploadPath+".\n"+mNote);
         }else if((mSize > 1048576) && (mSize < 1073741824)) {//MB
-            state.setText(str + " file success, file size:"+(mSize/1048576)+"."+(mSize%1048576) +"MB.\n" +"File path: "+mUploadPath+".\n"+"Note:/storage/emulated/0/是内置SD卡路径");
+            state.setText(str + " file success, file size:"+(mSize/1048576)+"."+(mSize%1048576) +"MB.\n" +"File path: "+mUploadPath+".\n"+mNote);
         }
     }
 
     private void updateDownloadState(boolean b){
-        if(b){
+        if(b && mWifiState){
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             dialog.setTitle("下载中...");
             dialog.setIndeterminate(true);
@@ -390,7 +408,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case TOAST_ERROR:
                     Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
 
-                    state.setText("Happen error");
+                    state.setText("Happen error, Check the link status of WiFi");
+                    state.setTextColor(Color.RED);
                     updateDownloadState(false);
                     break;
                 case TOAST_STOP_CLIENT:

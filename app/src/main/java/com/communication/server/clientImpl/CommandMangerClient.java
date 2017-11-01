@@ -176,8 +176,13 @@ public final class CommandMangerClient {
 			switch(msg.what){
                 case CommandResource.ERR_FAIL:
                     LogUtils.i(TAG, "CommandResource.ERR_FAIL");
-                    //Toast.makeText(CommandHandleClient.getInstance().getContext(), "server happen error", Toast.LENGTH_SHORT).show();
-					MainActivity.getmHandler().sendEmptyMessage(MainActivity.TOAST_ERROR);
+                    Toast.makeText(CommandHandleClient.getInstance().getContext(), "server happen error", Toast.LENGTH_SHORT).show();
+					Message msg2 = new Message();
+					msg2.what = MainActivity.DOWNLOAD_STATE;
+					Bundle data = new Bundle();
+					data.putString("path", "error");
+					msg2.setData(data);
+					MainActivity.getmHandler().sendMessage(msg2);
                     break;
 				case CommandResource.SYS_CMD_STARTHTTPD:
 					Log.i(TAG,"SYS_CMD_STARTHTTPD ");
